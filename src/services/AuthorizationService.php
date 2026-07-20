@@ -81,6 +81,16 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
             return true;
         }
 
+        // Optional: Craft admins see everything on the front end.
+        if ($settings->adminAlwaysAccess && $context->isAdmin) {
+            return true;
+        }
+
+        // Optional: entry authors always see their own entries.
+        if ($settings->authorAlwaysAccess && $this->isEntryAuthor($elementId, $context, $element)) {
+            return true;
+        }
+
         $policies = Plugin::getInstance()->getPolicies();
         $pipeline = Plugin::getInstance()->getPipeline();
 
@@ -96,6 +106,44 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
 
         // Synthetic policy so the pipeline can evaluate scope defaults.
         return $pipeline->authorize(new AccessPolicy(0, $principals), $context);
+    }
+
+    /**
+     * Whether the current user is an author of the given entry.
+     *
+     * Categories and products never qualify.
+     *
+     * @param int $elementId Element ID.
+     * @param AuthorizationContext $context Current authorization context.
+     * @param ElementInterface|null $element Optional loaded element.
+     *
+     * @return bool True when the user is an entry author.
+     */
+    private function isEntryAuthor(int $elementId, AuthorizationContext $context, ?ElementInterface $element = null): bool
+    {
+        if ($context->userId === null) {
+            return false;
+        }
+
+        if ($element !== null && !$element instanceof Entry) {
+            return false;
+        }
+
+        if ($element instanceof Entry) {
+            return in_array($context->userId, $element->getAuthorIds(), true);
+        }
+
+        if (!$this->isElementType($elementId, Entry::class)) {
+            return false;
+        }
+
+        return (new Query())
+            ->from(['{{%entries_authors}}'])
+            ->where([
+                'entryId' => $elementId,
+                'authorId' => $context->userId,
+            ])
+            ->exists();
     }
 
     /**

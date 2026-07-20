@@ -81,6 +81,8 @@ URL:
 
 - **Plugin Name**
 - **Enable authorization**
+- **Admins always have access** — Craft admins see all protected content on the front end
+- **Authors always have access** — entry authors always see their own entries (entries only; not categories or products)
 
 Requires a Craft admin user. When `allowAdminChanges` is `false` in `config/general.php`, the settings screen is still visible but read-only (fields disabled, save blocked)—same behaviour as Super Favourite.
 

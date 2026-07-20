@@ -44,10 +44,12 @@ class AuthorizationContextFactory extends Component
         $userId = null;
         $groupIds = [];
         $isGuest = true;
+        $isAdmin = false;
 
         if ($identity instanceof User) {
             $isGuest = false;
             $userId = (int)$identity->id;
+            $isAdmin = (bool)$identity->admin;
             $groupIds = array_map(
                 static fn($group): int => (int)$group->id,
                 $identity->getGroups()
@@ -74,6 +76,7 @@ class AuthorizationContextFactory extends Component
             $isGuest,
             $siteId,
             $isCpRequest,
+            $isAdmin,
         );
 
         return $this->cached;
@@ -87,6 +90,7 @@ class AuthorizationContextFactory extends Component
      * @param bool $isGuest Whether the visitor is unauthenticated.
      * @param bool $isCpRequest Whether the context represents a CP request.
      * @param int|null $siteId Optional site ID.
+     * @param bool $isAdmin Whether the synthetic user is a Craft admin.
      *
      * @return AuthorizationContext The constructed context.
      */
@@ -96,10 +100,12 @@ class AuthorizationContextFactory extends Component
         bool $isGuest = false,
         bool $isCpRequest = false,
         ?int $siteId = null,
+        bool $isAdmin = false,
     ): AuthorizationContext {
         if ($isGuest) {
             $userId = null;
             $groupIds = [];
+            $isAdmin = false;
         }
 
         return new AuthorizationContext(
@@ -108,6 +114,7 @@ class AuthorizationContextFactory extends Component
             $isGuest,
             $siteId,
             $isCpRequest,
+            $isAdmin,
         );
     }
 

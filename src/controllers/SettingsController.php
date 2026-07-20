@@ -78,6 +78,8 @@ class SettingsController extends Controller
         $settings = $plugin->getSettings();
         $settings->pluginName = (string)$this->request->getBodyParam('pluginName', $settings->pluginName);
         $settings->authorizationEnabled = (bool)$this->request->getBodyParam('authorizationEnabled');
+        $settings->adminAlwaysAccess = (bool)$this->request->getBodyParam('adminAlwaysAccess');
+        $settings->authorAlwaysAccess = (bool)$this->request->getBodyParam('authorAlwaysAccess');
 
         if (!$settings->validate() || !Craft::$app->getPlugins()->savePluginSettings($plugin, $settings->toArray())) {
             return $this->asModelFailure(

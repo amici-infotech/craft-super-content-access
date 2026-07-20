@@ -32,11 +32,22 @@ Built-in resolver types also include `guest` and `public` for the authorization 
 
 ## Resolution Order
 
-For each element:
+For each element (after optional bypasses below):
 
 1. If an **element policy** exists → that policy decides visibility.
 2. Else if a **scope default** exists (channel / category group / product type) → that policy decides visibility.
 3. Else → **public**.
+
+### Built-in bypasses
+
+These run before policy resolution when enabled in settings/config:
+
+| Setting | Effect |
+|---|---|
+| **Admins always have access** (`adminAlwaysAccess`) | Craft admin users see all protected content on the front end |
+| **Authors always have access** (`authorAlwaysAccess`) | Entry authors always see their own entries (entries only; not categories or products) |
+
+Control Panel requests always bypass filtering regardless of these settings.
 
 The same order is used by:
 

@@ -53,6 +53,12 @@ return [
 
     // Enable only in production (uses Craft’s existing env helpers)
     'authorizationEnabled' => App::env('CRAFT_ENVIRONMENT') === 'production',
+
+    // Craft admins see all protected content on the front end
+    'adminAlwaysAccess' => true,
+
+    // Entry authors always see their own entries (entries only; not categories/products)
+    'authorAlwaysAccess' => true,
 ];
 ```
 
@@ -75,6 +81,8 @@ Supported keys:
 |---|---|---|
 | `pluginName` | `string` | Label shown in the Control Panel nav |
 | `authorizationEnabled` | `bool` | Master switch for front-end query filtering |
+| `adminAlwaysAccess` | `bool` | Craft admins always see protected content on the front end |
+| `authorAlwaysAccess` | `bool` | Entry authors always see their own entries (entries only) |
 
 ## Documentation
 

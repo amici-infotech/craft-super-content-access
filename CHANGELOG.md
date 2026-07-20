@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - Read-only element sidebar summary with effective access (element policy, else scope default).
 - General Access Control Panel screens for channel, category-group, and product-type defaults.
 - Shared policy editor for the field and channel settings.
-- Plugin settings (`pluginName`, `authorizationEnabled`) with config-file override warnings.
+- Plugin settings (`pluginName`, `authorizationEnabled`, `adminAlwaysAccess`, `authorAlwaysAccess`) with config-file override warnings.
 - Settings remain viewable when `allowAdminChanges` is false (read-only).
 - Control Panel bypass for authorization on CP requests.
 - `super-content-access:manage-policies` permission.

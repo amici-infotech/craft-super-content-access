@@ -92,8 +92,9 @@ $context = $plugin->getContextFactory()->createFromParams(
     userId: 1,
     groupIds: [2, 3],
     isGuest: false,
-    siteId: 1,
     isCpRequest: false,
+    siteId: 1,
+    isAdmin: false,
 );
 
 $constraint = $plugin->getPipeline()->authorize($policy, $context);

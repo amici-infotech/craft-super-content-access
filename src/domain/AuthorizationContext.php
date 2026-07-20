@@ -25,6 +25,7 @@ final class AuthorizationContext
      * @param bool $isGuest Whether the visitor is unauthenticated.
      * @param int|null $siteId Current site ID when available.
      * @param bool $isCpRequest Whether the request targets the Control Panel.
+     * @param bool $isAdmin Whether the authenticated user is a Craft admin.
      * @param array<string, mixed> $metadata Optional diagnostic metadata.
      */
     public function __construct(
@@ -33,6 +34,7 @@ final class AuthorizationContext
         public readonly bool $isGuest,
         public readonly ?int $siteId,
         public readonly bool $isCpRequest,
+        public readonly bool $isAdmin = false,
         public readonly array $metadata = [],
     ) {
     }

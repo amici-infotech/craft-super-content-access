@@ -41,8 +41,28 @@
         id: 'authorizationEnabled',
         name: 'authorizationEnabled',
         on: settings.authorizationEnabled,
-        instructions: 'When disabled, Entry queries are not filtered. Control Panel requests always bypass filtering.'|t('super-content-access'),
+        instructions: 'When disabled, element queries are not filtered. Control Panel requests always bypass filtering.'|t('super-content-access'),
         disabled: readOnly,
         warning: macros.configWarning('authorizationEnabled', 'super-content-access'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Admins always have access'|t('super-content-access'),
+        id: 'adminAlwaysAccess',
+        name: 'adminAlwaysAccess',
+        on: settings.adminAlwaysAccess,
+        instructions: 'When enabled, Craft admin users see all protected entries, categories, and products on the front end.'|t('super-content-access'),
+        disabled: readOnly,
+        warning: macros.configWarning('adminAlwaysAccess', 'super-content-access'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Authors always have access'|t('super-content-access'),
+        id: 'authorAlwaysAccess',
+        name: 'authorAlwaysAccess',
+        on: settings.authorAlwaysAccess,
+        instructions: 'When enabled, entry authors can always view their own entries on the front end, even when a Members only policy would hide them. Does not apply to categories or Commerce products.'|t('super-content-access'),
+        disabled: readOnly,
+        warning: macros.configWarning('authorAlwaysAccess', 'super-content-access'),
     }) }}
 {% endblock %}

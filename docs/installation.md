@@ -43,6 +43,12 @@ return [
 
     // Tie the master switch to Craft’s environment (or any .env value)
     'authorizationEnabled' => App::env('CRAFT_ENVIRONMENT') === 'production',
+
+    // Craft admins see all protected content on the front end
+    'adminAlwaysAccess' => true,
+
+    // Entry authors always see their own entries (entries only)
+    'authorAlwaysAccess' => true,
 ];
 ```
 
@@ -58,6 +64,8 @@ use craft\helpers\App;
 return [
     // Only enforce access rules in production
     'authorizationEnabled' => App::env('CRAFT_ENVIRONMENT') === 'production',
+    'adminAlwaysAccess' => true,
+    'authorAlwaysAccess' => true,
 ];
 ```
 
@@ -67,8 +75,10 @@ return [
 use craft\helpers\App;
 
 return [
-    // Dedicated .env flag — e.g. SCA_AUTHORIZATION_ENABLED=true
+    // Dedicated .env flags
     'authorizationEnabled' => App::parseBooleanEnv('$SCA_AUTHORIZATION_ENABLED') ?? true,
+    'adminAlwaysAccess' => App::parseBooleanEnv('$SCA_ADMIN_ALWAYS_ACCESS') ?? true,
+    'authorAlwaysAccess' => App::parseBooleanEnv('$SCA_AUTHOR_ALWAYS_ACCESS') ?? true,
 ];
 ```
 
@@ -78,13 +88,17 @@ return [
 return [
     'pluginName' => 'Content Access',
     'authorizationEnabled' => true,
+    'adminAlwaysAccess' => true,
+    'authorAlwaysAccess' => true,
 ];
 ```
 
-| Key | Type | Description |
-|---|---|---|
-| `pluginName` | `string` | Label shown in the Control Panel nav |
-| `authorizationEnabled` | `bool` | Master switch for front-end query filtering |
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `pluginName` | `string` | `Super Content Access` | Label shown in the Control Panel nav |
+| `authorizationEnabled` | `bool` | `true` | Master switch for front-end query filtering |
+| `adminAlwaysAccess` | `bool` | `true` | Craft admins always see protected content on the front end |
+| `authorAlwaysAccess` | `bool` | `true` | Entry authors always see their own entries (not categories or products) |
 
 When `allowAdminChanges` is `false`, prefer the config file (and env) for changes — the Settings screen stays visible but read-only.
 

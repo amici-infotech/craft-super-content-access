@@ -30,6 +30,18 @@ class Settings extends Model
     public bool $authorizationEnabled = true;
 
     /**
+     * @var bool Whether Craft admins always see all protected content on the front end.
+     */
+    public bool $adminAlwaysAccess = true;
+
+    /**
+     * @var bool Whether entry authors always see their own entries on the front end.
+     *
+     * Applies to entries only (not categories or Commerce products).
+     */
+    public bool $authorAlwaysAccess = true;
+
+    /**
      * Returns validation rules for plugin settings.
      *
      * @return array Yii validation rules.
@@ -39,7 +51,7 @@ class Settings extends Model
         return [
             [['pluginName'], 'required'],
             [['pluginName'], 'string', 'max' => 255],
-            [['authorizationEnabled'], 'boolean'],
+            [['authorizationEnabled', 'adminAlwaysAccess', 'authorAlwaysAccess'], 'boolean'],
         ];
     }
 }

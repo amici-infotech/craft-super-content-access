@@ -15,6 +15,7 @@ use amici\SuperContentAccess\migrations\Install;
 use amici\SuperContentAccess\Plugin;
 use craft\base\Component;
 use craft\db\Query;
+use craft\db\Table;
 use craft\elements\Category;
 use craft\elements\db\CategoryQuery;
 use craft\elements\db\ElementQuery;
@@ -146,6 +147,11 @@ class ElementQueryIntegrator extends Component
             return;
         }
 
+        // Optional: Craft admins see everything on the front end.
+        if ($plugin->getSettings()->adminAlwaysAccess && $context->isAdmin) {
+            return;
+        }
+
         if (!$this->hasPoliciesForType($config['elementType'], $config['scopeColumn'])) {
             return;
         }
@@ -253,7 +259,29 @@ class ElementQueryIntegrator extends Component
             ->where($applies)
             ->andWhere(['pp.id' => null]);
 
-        $query->andWhere(['not exists', $blockingPolicy]);
+        $allowed = ['not exists', $blockingPolicy];
+
+        // Entries only: authors may always see their own entries when enabled.
+        if (
+            $config['elementType'] === Entry::class
+            && Plugin::getInstance()->getSettings()->authorAlwaysAccess
+            && $context->userId !== null
+        ) {
+            $allowed = [
+                'or',
+                $allowed,
+                [
+                    'exists',
+                    (new Query())
+                        ->select(new Expression('1'))
+                        ->from(['ea' => Table::ENTRIES_AUTHORS])
+                        ->where('[[ea.entryId]] = [[entries.id]]')
+                        ->andWhere(['ea.authorId' => $context->userId]),
+                ],
+            ];
+        }
+
+        $query->andWhere($allowed);
     }
 
     /**

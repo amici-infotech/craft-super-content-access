@@ -27,5 +27,5 @@ This documentation is split by task so you can find the right guide quickly.
 - **No policy** means public (everyone can see the element).
 - **Empty principals** on a policy means fail-closed (nobody can see it).
 - **Resolution order:** element policy → else scope default → else public.
-- Optional `config/super-content-access.php` can drive `authorizationEnabled` from `.env` / `CRAFT_ENVIRONMENT`.
+- Optional `config/super-content-access.php` can drive settings from `.env` / `CRAFT_ENVIRONMENT` (`authorizationEnabled`, `adminAlwaysAccess`, `authorAlwaysAccess`).
 - Control Panel requests always bypass front-end filtering.
