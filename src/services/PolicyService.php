@@ -12,14 +12,13 @@ use amici\SuperContentAccess\domain\AccessPolicy;
 use amici\SuperContentAccess\domain\contracts\PolicyServiceInterface;
 use amici\SuperContentAccess\domain\PolicyPrincipal;
 use amici\SuperContentAccess\domain\PrincipalType;
+use amici\SuperContentAccess\events\PolicyEvent;
 use amici\SuperContentAccess\Plugin;
 use amici\SuperContentAccess\repositories\PolicyRepository;
 use Craft;
 use craft\base\Component;
 use craft\base\ElementInterface;
 use craft\elements\User;
-use craft\events\CancelableEvent;
-use yii\base\Event;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -32,22 +31,30 @@ use yii\base\InvalidArgumentException;
 class PolicyService extends Component implements PolicyServiceInterface
 {
     /**
-     * Event fired before an access policy is saved.
+     * Event fired before an access policy is saved (element or scope default).
+     *
+     * Handlers receive a {@see PolicyEvent}. Set `$event->isValid = false` to abort.
      */
     public const EVENT_BEFORE_SAVE_POLICY = 'beforeSavePolicy';
 
     /**
-     * Event fired after an access policy is saved.
+     * Event fired after an access policy is saved successfully.
+     *
+     * Handlers receive a {@see PolicyEvent} with the persisted identifiers / policy.
      */
     public const EVENT_AFTER_SAVE_POLICY = 'afterSavePolicy';
 
     /**
-     * Event fired before an access policy is deleted.
+     * Event fired before an access policy is deleted (element or scope default).
+     *
+     * Handlers receive a {@see PolicyEvent}. Set `$event->isValid = false` to abort.
      */
     public const EVENT_BEFORE_DELETE_POLICY = 'beforeDeletePolicy';
 
     /**
-     * Event fired after an access policy is deleted.
+     * Event fired after an access policy is deleted successfully.
+     *
+     * Handlers receive a {@see PolicyEvent} describing what was removed.
      */
     public const EVENT_AFTER_DELETE_POLICY = 'afterDeletePolicy';
 
@@ -91,7 +98,11 @@ class PolicyService extends Component implements PolicyServiceInterface
     {
         $this->validatePrincipals($principals);
 
-        $event = new CancelableEvent(['sender' => $this]);
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'elementId' => $elementId,
+            'principals' => $principals,
+        ]);
         $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
 
         if (!$event->isValid) {
@@ -101,7 +112,12 @@ class PolicyService extends Component implements PolicyServiceInterface
         $policy = $this->repository()->save($elementId, $principals);
         $this->resetQueryMemo();
 
-        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new Event(['sender' => $this]));
+        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
+            'sender' => $this,
+            'elementId' => $elementId,
+            'principals' => $principals,
+            'policy' => $policy,
+        ]));
 
         return $policy;
     }
@@ -115,7 +131,10 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function deleteForElement(int $elementId): bool
     {
-        $event = new CancelableEvent(['sender' => $this]);
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'elementId' => $elementId,
+        ]);
         $this->trigger(self::EVENT_BEFORE_DELETE_POLICY, $event);
 
         if (!$event->isValid) {
@@ -126,7 +145,10 @@ class PolicyService extends Component implements PolicyServiceInterface
 
         if ($deleted) {
             $this->resetQueryMemo();
-            $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new Event(['sender' => $this]));
+            $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new PolicyEvent([
+                'sender' => $this,
+                'elementId' => $elementId,
+            ]));
         }
 
         return $deleted;
@@ -155,8 +177,26 @@ class PolicyService extends Component implements PolicyServiceInterface
     public function saveForSection(int $sectionId, array $principals): void
     {
         $this->validatePrincipals($principals);
+
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'sectionId' => $sectionId,
+            'principals' => $principals,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
+
+        if (!$event->isValid) {
+            throw new \RuntimeException('Access policy save was cancelled.');
+        }
+
         $this->repository()->saveForSection($sectionId, $principals);
         $this->resetQueryMemo();
+
+        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
+            'sender' => $this,
+            'sectionId' => $sectionId,
+            'principals' => $principals,
+        ]));
     }
 
     /**
@@ -168,9 +208,23 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function deleteForSection(int $sectionId): bool
     {
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'sectionId' => $sectionId,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_DELETE_POLICY, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
         $deleted = $this->repository()->deleteBySectionId($sectionId);
         if ($deleted) {
             $this->resetQueryMemo();
+            $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new PolicyEvent([
+                'sender' => $this,
+                'sectionId' => $sectionId,
+            ]));
         }
 
         return $deleted;
@@ -199,8 +253,26 @@ class PolicyService extends Component implements PolicyServiceInterface
     public function saveForGroup(int $groupId, array $principals): void
     {
         $this->validatePrincipals($principals);
+
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'groupId' => $groupId,
+            'principals' => $principals,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
+
+        if (!$event->isValid) {
+            throw new \RuntimeException('Access policy save was cancelled.');
+        }
+
         $this->repository()->saveForGroup($groupId, $principals);
         $this->resetQueryMemo();
+
+        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
+            'sender' => $this,
+            'groupId' => $groupId,
+            'principals' => $principals,
+        ]));
     }
 
     /**
@@ -212,9 +284,23 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function deleteForGroup(int $groupId): bool
     {
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'groupId' => $groupId,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_DELETE_POLICY, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
         $deleted = $this->repository()->deleteByGroupId($groupId);
         if ($deleted) {
             $this->resetQueryMemo();
+            $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new PolicyEvent([
+                'sender' => $this,
+                'groupId' => $groupId,
+            ]));
         }
 
         return $deleted;
@@ -243,8 +329,26 @@ class PolicyService extends Component implements PolicyServiceInterface
     public function saveForProductType(int $productTypeId, array $principals): void
     {
         $this->validatePrincipals($principals);
+
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'productTypeId' => $productTypeId,
+            'principals' => $principals,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
+
+        if (!$event->isValid) {
+            throw new \RuntimeException('Access policy save was cancelled.');
+        }
+
         $this->repository()->saveForProductType($productTypeId, $principals);
         $this->resetQueryMemo();
+
+        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
+            'sender' => $this,
+            'productTypeId' => $productTypeId,
+            'principals' => $principals,
+        ]));
     }
 
     /**
@@ -256,9 +360,23 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function deleteForProductType(int $productTypeId): bool
     {
+        $event = new PolicyEvent([
+            'sender' => $this,
+            'productTypeId' => $productTypeId,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_DELETE_POLICY, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
         $deleted = $this->repository()->deleteByProductTypeId($productTypeId);
         if ($deleted) {
             $this->resetQueryMemo();
+            $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new PolicyEvent([
+                'sender' => $this,
+                'productTypeId' => $productTypeId,
+            ]));
         }
 
         return $deleted;

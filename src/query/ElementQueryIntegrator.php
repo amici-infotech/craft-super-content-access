@@ -10,6 +10,7 @@ namespace amici\SuperContentAccess\query;
 
 use amici\SuperContentAccess\domain\AuthorizationContext;
 use amici\SuperContentAccess\domain\PrincipalType;
+use amici\SuperContentAccess\events\ModifyElementQueryEvent;
 use amici\SuperContentAccess\helpers\CommerceHelper;
 use amici\SuperContentAccess\migrations\Install;
 use amici\SuperContentAccess\Plugin;
@@ -39,6 +40,21 @@ use yii\db\Expression;
  */
 class ElementQueryIntegrator extends Component
 {
+    /**
+     * Event fired immediately before authorization SQL is applied to a query.
+     *
+     * Handlers receive a {@see ModifyElementQueryEvent}. Set `$event->isValid = false`
+     * to skip injecting constraints for that query only.
+     */
+    public const EVENT_BEFORE_MODIFY_QUERY = 'beforeModifyQuery';
+
+    /**
+     * Event fired immediately after authorization SQL has been applied to a query.
+     *
+     * Handlers receive a {@see ModifyElementQueryEvent}.
+     */
+    public const EVENT_AFTER_MODIFY_QUERY = 'afterModifyQuery';
+
     /**
      * @var bool Whether the beforePrepare listener has been registered.
      */
@@ -227,6 +243,19 @@ class ElementQueryIntegrator extends Component
             $config = $this->entryConfig();
         }
 
+        $beforeEvent = new ModifyElementQueryEvent([
+            'sender' => $this,
+            'query' => $query,
+            'context' => $context,
+            'elementType' => $config['elementType'],
+            'scopeColumn' => $config['scopeColumn'],
+        ]);
+        $this->trigger(self::EVENT_BEFORE_MODIFY_QUERY, $beforeEvent);
+
+        if (!$beforeEvent->isValid) {
+            return;
+        }
+
         $matchOn = $this->buildPrincipalMatchConditions($context, 'pp');
         $scopeColumn = $config['scopeColumn'];
         $scopeTableColumn = $config['scopeTableColumn'];
@@ -282,6 +311,14 @@ class ElementQueryIntegrator extends Component
         }
 
         $query->andWhere($allowed);
+
+        $this->trigger(self::EVENT_AFTER_MODIFY_QUERY, new ModifyElementQueryEvent([
+            'sender' => $this,
+            'query' => $query,
+            'context' => $context,
+            'elementType' => $config['elementType'],
+            'scopeColumn' => $config['scopeColumn'],
+        ]));
     }
 
     /**

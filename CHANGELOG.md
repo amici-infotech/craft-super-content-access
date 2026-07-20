@@ -19,4 +19,6 @@ All notable changes to this project will be documented in this file.
 - `super-content-access:manage-policies` permission.
 - Craft dashboard widgets: Access Overview and Access Breakdown.
 - Console `super-content-access/query-probe` command for SQL verification.
+- Policy lifecycle events (`beforeSavePolicy` / `afterSavePolicy` / `beforeDeletePolicy` / `afterDeletePolicy`) via `PolicyEvent`.
+- Query modification events (`beforeModifyQuery` / `afterModifyQuery`) via `ModifyElementQueryEvent`.
 - Structured documentation under `docs/`.
