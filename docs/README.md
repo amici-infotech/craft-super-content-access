@@ -12,8 +12,8 @@ This documentation is split by task so you can find the right guide quickly.
 
 ## Developer Reference
 
-- [Twig / Front-End Behaviour](twig-usage.md) — how front-end queries behave; no special Twig helpers required.
-- [PHP API](php-api.md) — services for modules, plugins, jobs, and custom code.
+- [Twig / Front-End Behaviour](twig-usage.md) — automatic query filtering and `craft.superContentAccess`.
+- [PHP API](php-api.md) — services, events, bypass helpers, and extension hooks.
 - [Console Probe](console.md) — verify SQL constraints with the query probe command.
 - [Troubleshooting](troubleshooting.md) — common setup, visibility, and performance issues.
 
@@ -26,4 +26,5 @@ This documentation is split by task so you can find the right guide quickly.
 - **Resolution order:** entry policy → else channel default → else public.
 - The **Access Control** field edits entry policies. The **sidebar** only displays effective access.
 - **General Access** edits channel defaults for all entries in that channel without their own policy.
+- Use `craft.superContentAccess.canAccess(entry)` for ad-hoc Twig checks; prefer `craft.entries` for lists.
 - Control Panel requests always bypass front-end filtering.

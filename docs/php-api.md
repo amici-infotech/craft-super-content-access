@@ -6,6 +6,7 @@ Use the plugin services from custom modules, plugins, queue jobs, console comman
 use amici\SuperContentAccess\Plugin;
 use amici\SuperContentAccess\domain\PolicyPrincipal;
 use amici\SuperContentAccess\domain\PrincipalType;
+use craft\elements\Entry;
 ```
 
 ## Policy Service
@@ -24,7 +25,7 @@ $policies->saveForElement(123, [
     new PolicyPrincipal(PrincipalType::USER, '10'),
 ]);
 
-$policies->deleteForElement(123); // back to public (unless channel default applies)
+$policies->deleteForElement(123); // back to public (unless a channel default applies)
 ```
 
 ### Channel Defaults
@@ -49,9 +50,37 @@ $allowed = $auth->canAccessElement($entry);
 $allowed = $auth->canAccessElementId(123);
 ```
 
-CP requests always return `true` from `canAccessElement*`.
+CP requests always return `true` from `canAccessElement*`. Effective access matches Entry queries (entry policy → channel default → public).
 
-> Note: single-element checks currently load the entry policy only. Entry queries and the sidebar honor channel defaults. Prefer Entry queries for list visibility that must include channel inheritance.
+## Twig Variable
+
+Templates use the same check via:
+
+```twig
+{% if craft.superContentAccess.canAccess(entry) %}
+{% endif %}
+```
+
+See [Twig / Front-End Behaviour](twig-usage.md).
+
+## Bypass Query Authorization
+
+To run an Entry query without access filtering (for admin tools, exports, etc.):
+
+```php
+$integrator = Plugin::getInstance()->getEntryQueryIntegrator();
+$integrator->disable();
+
+try {
+    $entries = Entry::find()->section('news')->all();
+} finally {
+    $integrator->enable();
+}
+```
+
+Always re-enable in a `finally` block so later queries in the same request stay protected.
+
+There is no Twig query param for this. Prefer keeping front-end templates filtered.
 
 ## Context Factory / Pipeline / Resolvers
 
@@ -74,6 +103,8 @@ $plugin->getResolverRegistry()->register($customResolver);
 ```
 
 ## Diagnostics
+
+Used by dashboard widgets and health checks:
 
 ```php
 $overview = Plugin::getInstance()->getDiagnostics()->overview();

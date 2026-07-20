@@ -36,7 +36,11 @@ For each entry:
 2. Else if a **channel default** exists → that policy decides visibility.
 3. Else → **public**.
 
-The entry sidebar shows this **effective** access and notes when the rule is inherited from the channel.
+The same order is used by:
+
+- Entry query SQL filtering
+- Entry sidebar summary
+- `craft.superContentAccess.canAccess()` / PHP `AuthorizationService`
 
 ## Query-Level Authorization
 
@@ -58,3 +62,5 @@ If a policy exists but no principal matches the current visitor, access is denie
 
 - `pluginName` — CP nav label.
 - `authorizationEnabled` — master switch for query filtering (CP still bypasses when on).
+
+Settings can also live in `config/super-content-access.php`. Keys in that file win over Project Config / CP values.

@@ -9,7 +9,7 @@ Main sections:
 - **General Access** — channel default policies.
 - **Settings** — plugin name and authorization toggle.
 
-The plugin nav stays expanded while you are on any Super Content Access URL.
+The plugin nav stays expanded while you are on any Super Content Access URL. Native Craft breadcrumbs appear on General Access and Settings screens.
 
 ## Access Control Field
 
@@ -35,6 +35,8 @@ The entry meta sidebar shows a read-only **Access** band:
 
 The sidebar does not edit policies. Use the Access Control field (or General Access for channel defaults).
 
+The summary is hidden when access is fully public **and** the entry layout has no Access Control field.
+
 ## General Access — Channels
 
 URL:
@@ -52,6 +54,8 @@ Lists every Craft **channel** section with:
 Click a channel to set its default policy using the same Everyone / Members only editor. Saving updates the section-scoped policy; choosing Everyone removes it.
 
 Requires `super-content-access:manage-policies`.
+
+Categories / Products appear in the General Access sidebar as upcoming scopes (disabled for now).
 
 ## Settings
 
@@ -72,5 +76,5 @@ Config-file overrides show a warning under the field.
 
 From the Craft dashboard, add:
 
-- **Access Overview** — authorization status and policy counts.
-- **Access Breakdown** — doughnut chart; settings choose policy location (entries vs channels) or audience type (groups vs users).
+- **Access Overview** — authorization status and policy counts, plus a link to General Access.
+- **Access Breakdown** — doughnut chart; widget settings choose policy location (entries vs channels) or audience type (groups vs users).

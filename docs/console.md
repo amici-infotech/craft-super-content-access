@@ -24,7 +24,13 @@ php craft super-content-access/query-probe --clear
 
 - Temporarily disables the production integrator when comparing baseline vs constrained queries.
 - Builds an authorization context (guest or user/groups).
-- Applies the same access constraint used on the front end.
+- Applies the same access constraint used on the front end (including channel defaults).
 - Prints counts / IDs so you can confirm filtering.
 
 Use this when changing resolvers, indexes, or SQL shape to confirm behaviour before deploying.
+
+## Related
+
+- [Twig / Front-End Behaviour](twig-usage.md)
+- [PHP API](php-api.md)
+- [Troubleshooting](troubleshooting.md)

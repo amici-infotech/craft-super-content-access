@@ -8,14 +8,20 @@
 
 namespace amici\SuperContentAccess\services;
 
+use amici\SuperContentAccess\domain\AccessPolicy;
 use amici\SuperContentAccess\domain\AuthorizationContext;
 use amici\SuperContentAccess\domain\contracts\AuthorizationServiceInterface;
 use amici\SuperContentAccess\Plugin;
 use craft\base\Component;
 use craft\base\ElementInterface;
+use craft\db\Query;
+use craft\elements\Entry;
 
 /**
  * Authorization helpers for single-element checks and context access.
+ *
+ * Resolves effective access the same way Entry queries do:
+ * entry policy → else channel default → else public.
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
@@ -47,7 +53,9 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
             return true;
         }
 
-        return $this->canAccessElementId((int)$element->id, $context);
+        $sectionId = $element instanceof Entry ? $element->sectionId : null;
+
+        return $this->canAccessElementId((int)$element->id, $context, $sectionId !== null ? (int)$sectionId : null);
     }
 
     /**
@@ -55,10 +63,11 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
      *
      * @param int $elementId Element ID to evaluate.
      * @param AuthorizationContext|null $context Optional context override.
+     * @param int|null $sectionId Optional section ID when already known (avoids a lookup).
      *
      * @return bool True when access is allowed.
      */
-    public function canAccessElementId(int $elementId, ?AuthorizationContext $context = null): bool
+    public function canAccessElementId(int $elementId, ?AuthorizationContext $context = null, ?int $sectionId = null): bool
     {
         $context ??= $this->getContext();
 
@@ -71,8 +80,47 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
             return true;
         }
 
-        $policy = Plugin::getInstance()->getPolicies()->getForElementId($elementId);
+        $policies = Plugin::getInstance()->getPolicies();
+        $pipeline = Plugin::getInstance()->getPipeline();
 
-        return Plugin::getInstance()->getPipeline()->authorize($policy, $context);
+        $policy = $policies->getForElementId($elementId);
+        if ($policy instanceof AccessPolicy) {
+            return $pipeline->authorize($policy, $context);
+        }
+
+        $sectionId ??= $this->sectionIdForElement($elementId);
+        if ($sectionId === null) {
+            return true;
+        }
+
+        $principals = $policies->getForSection($sectionId);
+        if ($principals === null) {
+            return true;
+        }
+
+        // Synthetic policy so the pipeline can evaluate channel defaults.
+        return $pipeline->authorize(new AccessPolicy(0, $principals), $context);
+    }
+
+    /**
+     * Looks up the section ID for an entry element without running Entry queries.
+     *
+     * @param int $elementId Element ID.
+     *
+     * @return int|null Section ID, or null when the element is not an entry.
+     */
+    private function sectionIdForElement(int $elementId): ?int
+    {
+        $sectionId = (new Query())
+            ->select(['sectionId'])
+            ->from(['{{%entries}}'])
+            ->where(['id' => $elementId])
+            ->scalar();
+
+        if ($sectionId === null || $sectionId === false || $sectionId === '') {
+            return null;
+        }
+
+        return (int)$sectionId;
     }
 }

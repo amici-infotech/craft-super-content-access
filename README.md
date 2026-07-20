@@ -10,8 +10,10 @@ Editors manage access from an **Access Control** field and see the effective pol
 - Query-level authorization on `craft.entries` (Twig, PHP, GraphQL consumers of Entry queries).
 - Channel (section) default policies with entry-level overrides.
 - Read-only entry sidebar summary showing effective access (entry policy, else channel default).
+- Twig variable `craft.superContentAccess.canAccess()` for ad-hoc entry checks.
 - Craft dashboard widgets for access overview and breakdown charts.
 - Plugin settings with `config/super-content-access.php` overrides.
+- Settings remain viewable when `allowAdminChanges` is false (read-only).
 - Console query probe for verifying SQL constraints.
 
 ## Requirements
@@ -50,11 +52,25 @@ The plugin adds a **Super Content Access** section with:
 
 On entries, add the **Access Control** field to a field layout to edit per-entry rules. The sidebar shows a read-only summary of effective access.
 
+## Twig Quick Start
+
+```twig
+{# Lists are filtered automatically #}
+{% for entry in craft.entries.section('news').all() %}
+    {{ entry.title }}
+{% endfor %}
+
+{# Ad-hoc check on a known entry #}
+{% if craft.superContentAccess.canAccess(entry) %}
+    {# allowed #}
+{% endif %}
+```
+
 ## Permissions
 
 - `super-content-access:manage-policies` — manage General Access channel policies.
 
-Plugin **Settings** require a Craft admin.
+Plugin **Settings** require a Craft admin. With `allowAdminChanges` disabled, settings stay visible but read-only.
 
 ## License
 

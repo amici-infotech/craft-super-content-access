@@ -13,6 +13,7 @@ namespace amici\SuperContentAccess;
 use amici\SuperContentAccess\base\PluginTrait;
 use amici\SuperContentAccess\fields\AccessControlField;
 use amici\SuperContentAccess\models\Settings;
+use amici\SuperContentAccess\variables\SuperContentAccessVariable;
 use amici\SuperContentAccess\widgets\AccessBreakdown;
 use amici\SuperContentAccess\widgets\AccessOverview;
 use Craft;
@@ -29,6 +30,7 @@ use craft\helpers\UrlHelper;
 use craft\services\Dashboard;
 use craft\services\Fields;
 use craft\services\UserPermissions;
+use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use yii\base\Event;
 
@@ -86,6 +88,7 @@ class Plugin extends CraftPlugin
         }
 
         $this->_setPluginComponents();
+        $this->_registerVariables();
         $this->_registerFieldType();
         $this->_registerElementSidebarWidget();
         $this->_registerDashboardWidgets();
@@ -167,6 +170,24 @@ class Plugin extends CraftPlugin
             Fields::EVENT_REGISTER_FIELD_TYPES,
             static function (RegisterComponentTypesEvent $event): void {
                 $event->types[] = AccessControlField::class;
+            }
+        );
+    }
+
+    /**
+     * Registers the Twig variable as `craft.superContentAccess`.
+     *
+     * @return void Nothing is returned.
+     */
+    private function _registerVariables(): void
+    {
+        Event::on(
+            CraftVariable::class,
+            CraftVariable::EVENT_INIT,
+            static function (Event $event): void {
+                /** @var CraftVariable $variable */
+                $variable = $event->sender;
+                $variable->set('superContentAccess', SuperContentAccessVariable::class);
             }
         );
     }
