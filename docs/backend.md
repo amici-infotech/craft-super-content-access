@@ -84,7 +84,7 @@ URL:
 
 Requires a Craft admin user. When `allowAdminChanges` is `false` in `config/general.php`, the settings screen is still visible but read-only (fields disabled, save blocked)—same behaviour as Super Favourite.
 
-Config-file overrides show a warning under the field.
+Prefer `config/super-content-access.php` for environment-specific control (for example enable only in production via `App::env('CRAFT_ENVIRONMENT')`). Any key in that file overrides the CP value and shows a warning under the field. See [Installation — Config file](installation.md#config-file).
 
 ## Dashboard Widgets
 

@@ -1,6 +1,6 @@
 # Twig / Front-End Behaviour
 
-Entry, category, and product queries are filtered automatically. Unauthorized elements never reach Twig.
+Plug-and-play on the front end: keep using your existing element queries. Entry, category, and product results are filtered automatically. Unauthorized elements never reach Twig.
 
 ## Automatic Filtering
 
@@ -33,7 +33,7 @@ No special query param is required. There is no Twig `canAccess` helper: if an e
 
 Twig has no per-query bypass flag. To load unfiltered elements from PHP (modules, controllers), temporarily disable the integrator — see [PHP API](php-api.md#bypass-query-authorization).
 
-Turning off **Enable authorization** (or `authorizationEnabled` in config) disables filtering site-wide.
+Turning off **Enable authorization** (or `authorizationEnabled` in `config/super-content-access.php`, including env-driven values) disables filtering site-wide. See [Installation — Config file](installation.md#config-file).
 
 ## Control Panel
 
