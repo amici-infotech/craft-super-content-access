@@ -64,7 +64,9 @@ URL:
 - **Plugin Name**
 - **Enable authorization**
 
-Requires a Craft admin. Config-file overrides show a warning under the field.
+Requires a Craft admin user. When `allowAdminChanges` is `false` in `config/general.php`, the settings screen is still visible but read-only (fields disabled, save blocked)—same behaviour as Super Favourite.
+
+Config-file overrides show a warning under the field.
 
 ## Dashboard Widgets
 

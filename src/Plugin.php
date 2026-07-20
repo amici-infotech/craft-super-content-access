@@ -59,7 +59,7 @@ class Plugin extends CraftPlugin
     /**
      * @var string Database schema version.
      */
-    public string $schemaVersion = '5.0.4';
+    public string $schemaVersion = '5.0.0';
 
     /**
      * @var bool Whether the plugin exposes CP settings.

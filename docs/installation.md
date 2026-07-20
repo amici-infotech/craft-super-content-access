@@ -43,7 +43,7 @@ Any key present in this file overrides the Control Panel setting. The settings s
 
 Assign `super-content-access:manage-policies` to user groups that should edit **General Access** channel policies.
 
-Plugin **Settings** require a Craft admin user.
+Plugin **Settings** require a Craft admin user. With `allowAdminChanges` disabled, settings remain viewable but not editable.
 
 ## After Install
 

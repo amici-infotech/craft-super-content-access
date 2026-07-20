@@ -30,7 +30,7 @@ use yii\web\Response;
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
- * @since   5.0.3
+ * @since   5.0.0
  */
 class AccessController extends Controller
 {

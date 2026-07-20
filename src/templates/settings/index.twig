@@ -1,7 +1,8 @@
 {% extends '_layouts/cp.twig' %}
 {% set title = 'Settings'|t('super-content-access') %}
 {% set selectedSubnavItem = 'settings' %}
-{% set fullPageForm = true %}
+{% set readOnly = not craft.app.config.general.allowAdminChanges %}
+{% set fullPageForm = not readOnly %}
 
 {% set crumbs = [
     {
@@ -10,13 +11,19 @@
     },
 ] %}
 
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
 {% import '_includes/forms.twig' as forms %}
 {% import 'super-content-access/_macros' as macros %}
 
 {% block content %}
-    {{ actionInput('super-content-access/settings/save') }}
-    {{ redirectInput('super-content-access/settings') }}
-    {{ csrfInput() }}
+    {% if not readOnly %}
+        {{ actionInput('super-content-access/settings/save') }}
+        {{ redirectInput('super-content-access/settings') }}
+        {{ csrfInput() }}
+    {% endif %}
 
     {{ forms.textField({
         label: 'Plugin Name'|t('super-content-access'),
@@ -25,6 +32,7 @@
         value: settings.pluginName,
         required: true,
         first: true,
+        disabled: readOnly,
         warning: macros.configWarning('pluginName', 'super-content-access'),
     }) }}
 
@@ -34,6 +42,7 @@
         name: 'authorizationEnabled',
         on: settings.authorizationEnabled,
         instructions: 'When disabled, Entry queries are not filtered. Control Panel requests always bypass filtering.'|t('super-content-access'),
+        disabled: readOnly,
         warning: macros.configWarning('authorizationEnabled', 'super-content-access'),
     }) }}
 {% endblock %}

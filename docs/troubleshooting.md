@@ -21,7 +21,7 @@ If a field shows “This is being overridden by the `…` setting in the `config
 
 1. With **no policies**, the plugin should skip authorization SQL (check the debug toolbar — you should not see heavy policy joins).
 2. Presence checks use `EXISTS … LIMIT 1`, not `COUNT(*)`.
-3. Large sites with many entry policies will still pay for the authorization anti-join; that is expected. Ensure the principals covering index migration (`5.0.4`) has run.
+3. Large sites with many entry policies will still pay for the authorization anti-join; that is expected. The principals covering index is created on install.
 
 ## Sidebar Missing
 

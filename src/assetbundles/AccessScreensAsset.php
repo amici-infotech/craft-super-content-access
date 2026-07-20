@@ -15,7 +15,7 @@ use craft\web\assets\cp\CpAsset;
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
- * @since   5.0.3
+ * @since   5.0.0
  */
 class AccessScreensAsset extends AssetBundle
 {

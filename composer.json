@@ -1,7 +1,7 @@
 {
     "name": "amici/craft-super-content-access",
     "description": "Element-level authorization for Craft CMS with query-level access control.",
-    "version": "5.0.4",
+    "version": "5.0.0",
     "type": "craft-plugin",
     "keywords": ["craft", "cms", "craftcms", "craft-plugin", "authorization", "access", "permissions"],
     "license": "proprietary",
