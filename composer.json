@@ -19,6 +19,9 @@
         "php": "^8.2 || ^8.3 || ^8.4",
         "craftcms/cms": "^5.0"
     },
+    "suggest": {
+        "craftcms/commerce": "Required for product-type defaults and Product query authorization."
+    },
     "autoload": {
         "psr-4": {
             "amici\\SuperContentAccess\\": "src/"

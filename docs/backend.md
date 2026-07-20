@@ -6,56 +6,70 @@ The plugin adds a **Super Content Access** section to the Craft Control Panel.
 
 Main sections:
 
-- **General Access** — channel default policies.
+- **General Access** — defaults for channels, category groups, and product types.
 - **Settings** — plugin name and authorization toggle.
 
 The plugin nav stays expanded while you are on any Super Content Access URL. Native Craft breadcrumbs appear on General Access and Settings screens.
 
 ## Access Control Field
 
-Add the **Access Control** field to an entry type field layout.
+Add the **Access Control** field to an entry type, category group, or product type field layout.
 
-On the entry edit screen you can:
+On the element edit screen you can:
 
-- Choose **Everyone** (public — no entry policy).
+- Choose **Everyone** (public — no element policy).
 - Choose **Members only**, then select user groups and/or specific users.
 - See a warning when Members only is enabled with no audiences (fail-closed).
 
-Saving the entry writes to plugin tables (`super_content_access_*`), not Craft field content. The field uses `dbType: null`.
+Saving writes to plugin tables (`super_content_access_*`), not Craft field content. The field uses `dbType: null`.
 
-Drafts: submitted values persist against the **canonical** entry ID.
+Drafts: submitted values persist against the **canonical** element ID.
 
-## Entry Sidebar Summary
+## Element Sidebar Summary
 
-The entry meta sidebar shows a read-only **Access** band:
+The meta sidebar shows a read-only **Access** band for entries, categories, and products:
 
 - Badge: **Public** or **Members only**.
-- Source note: set on this entry, or inherited from the channel default (with link to General Access).
+- Source note: set on this element, or inherited from the matching General Access default (with link).
 - Audience chips for groups and users when restricted.
 
-The sidebar does not edit policies. Use the Access Control field (or General Access for channel defaults).
+The sidebar does not edit policies. Use the Access Control field (or General Access for defaults).
 
-The summary is hidden when access is fully public **and** the entry layout has no Access Control field.
+The summary is hidden when access is fully public **and** the layout has no Access Control field.
 
-## General Access — Channels
+## General Access
 
-URL:
+Sidebar scopes:
+
+- **Channels** — Craft channel sections
+- **Categories** — category groups
+- **Products** — Commerce product types (shown only when Commerce is installed and enabled)
+
+### Channels
 
 ```text
 /admin/super-content-access/access/channels
 ```
 
-Lists every Craft **channel** section with:
+Lists every Craft **channel** section. Click a channel to set its default policy. Choosing Everyone removes the section-scoped policy.
 
-- Name and handle
-- Default access status (Public / Members only / No one)
-- Link to edit
+### Category groups
 
-Click a channel to set its default policy using the same Everyone / Members only editor. Saving updates the section-scoped policy; choosing Everyone removes it.
+```text
+/admin/super-content-access/access/categories
+```
+
+Same editor pattern for each category group.
+
+### Product types
+
+```text
+/admin/super-content-access/access/products
+```
+
+Same editor pattern for each Commerce product type.
 
 Requires `super-content-access:manage-policies`.
-
-Categories / Products appear in the General Access sidebar as upcoming scopes (disabled for now).
 
 ## Settings
 
@@ -77,4 +91,4 @@ Config-file overrides show a warning under the field.
 From the Craft dashboard, add:
 
 - **Access Overview** — authorization status and policy counts, plus a link to General Access.
-- **Access Breakdown** — doughnut chart; widget settings choose policy location (entries vs channels) or audience type (groups vs users).
+- **Access Breakdown** — doughnut chart; widget settings choose policy location or audience type.

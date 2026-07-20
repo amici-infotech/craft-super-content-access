@@ -18,28 +18,39 @@
         </span>
     </div>
 
-    {% if source == 'channel' %}
+    {% if source in ['channel', 'group', 'productType'] %}
         <p class="sca-summary__source">
-            {% if channelUrl %}
-                {{ 'Inherited from the {channel} channel default.'|t('super-content-access', {
-                    channel: '<a href="' ~ channelUrl ~ '">' ~ channelName ~ '</a>',
+            {% if scopeUrl and scopeName %}
+                {{ 'Inherited from the {scope} {kind} default.'|t('super-content-access', {
+                    scope: '<a href="' ~ scopeUrl ~ '">' ~ scopeName ~ '</a>',
+                    kind: scopeKind,
                 })|raw }}
             {% else %}
-                {{ 'Inherited from the channel default.'|t('super-content-access') }}
+                {{ 'Inherited from the {kind} default.'|t('super-content-access', {
+                    kind: scopeKind ?? 'scope',
+                }) }}
             {% endif %}
-            {{ 'Set this entry’s Access Control field to override it.'|t('super-content-access') }}
+            {{ 'Set this {element}’s Access Control field to override it.'|t('super-content-access', {
+                element: elementLabel,
+            }) }}
         </p>
-    {% elseif source == 'entry' %}
-        <p class="sca-summary__source">{{ 'Set on this entry.'|t('super-content-access') }}</p>
+    {% elseif source == 'element' %}
+        <p class="sca-summary__source">{{ 'Set on this {element}.'|t('super-content-access', {
+            element: elementLabel,
+        }) }}</p>
     {% endif %}
 
     {% if not restricted %}
         <p class="sca-summary__desc">
-            {{ 'Anyone can view this entry on the front end.'|t('super-content-access') }}
+            {{ 'Anyone can view this {element} on the front end.'|t('super-content-access', {
+                element: elementLabel,
+            }) }}
         </p>
     {% elseif empty %}
         <p class="sca-summary__desc sca-summary__desc--alert">
-            {{ 'No members chosen yet — this entry is hidden from everyone.'|t('super-content-access') }}
+            {{ 'No members chosen yet — this {element} is hidden from everyone.'|t('super-content-access', {
+                element: elementLabel,
+            }) }}
         </p>
     {% else %}
         <p class="sca-summary__desc">

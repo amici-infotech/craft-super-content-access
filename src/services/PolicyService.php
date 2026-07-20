@@ -99,7 +99,7 @@ class PolicyService extends Component implements PolicyServiceInterface
         }
 
         $policy = $this->repository()->save($elementId, $principals);
-        Plugin::getInstance()->getEntryQueryIntegrator()->resetMemo();
+        $this->resetQueryMemo();
 
         $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new Event(['sender' => $this]));
 
@@ -125,7 +125,7 @@ class PolicyService extends Component implements PolicyServiceInterface
         $deleted = $this->repository()->deleteByElementId($elementId);
 
         if ($deleted) {
-            Plugin::getInstance()->getEntryQueryIntegrator()->resetMemo();
+            $this->resetQueryMemo();
             $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new Event(['sender' => $this]));
         }
 
@@ -156,7 +156,7 @@ class PolicyService extends Component implements PolicyServiceInterface
     {
         $this->validatePrincipals($principals);
         $this->repository()->saveForSection($sectionId, $principals);
-        Plugin::getInstance()->getEntryQueryIntegrator()->resetMemo();
+        $this->resetQueryMemo();
     }
 
     /**
@@ -170,10 +170,108 @@ class PolicyService extends Component implements PolicyServiceInterface
     {
         $deleted = $this->repository()->deleteBySectionId($sectionId);
         if ($deleted) {
-            Plugin::getInstance()->getEntryQueryIntegrator()->resetMemo();
+            $this->resetQueryMemo();
         }
 
         return $deleted;
+    }
+
+    /**
+     * Loads the principals for a category-group default policy.
+     *
+     * @param int $groupId Category group ID.
+     *
+     * @return PolicyPrincipal[]|null Principals, or null when no policy exists.
+     */
+    public function getForGroup(int $groupId): ?array
+    {
+        return $this->repository()->findByGroupId($groupId);
+    }
+
+    /**
+     * Saves a category-group default policy.
+     *
+     * @param int $groupId Category group ID.
+     * @param PolicyPrincipal[] $principals Principals to persist.
+     *
+     * @return void Nothing is returned.
+     */
+    public function saveForGroup(int $groupId, array $principals): void
+    {
+        $this->validatePrincipals($principals);
+        $this->repository()->saveForGroup($groupId, $principals);
+        $this->resetQueryMemo();
+    }
+
+    /**
+     * Removes a category-group default policy.
+     *
+     * @param int $groupId Category group ID.
+     *
+     * @return bool Whether a policy was deleted.
+     */
+    public function deleteForGroup(int $groupId): bool
+    {
+        $deleted = $this->repository()->deleteByGroupId($groupId);
+        if ($deleted) {
+            $this->resetQueryMemo();
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Loads the principals for a Commerce product-type default policy.
+     *
+     * @param int $productTypeId Product type ID.
+     *
+     * @return PolicyPrincipal[]|null Principals, or null when no policy exists.
+     */
+    public function getForProductType(int $productTypeId): ?array
+    {
+        return $this->repository()->findByProductTypeId($productTypeId);
+    }
+
+    /**
+     * Saves a Commerce product-type default policy.
+     *
+     * @param int $productTypeId Product type ID.
+     * @param PolicyPrincipal[] $principals Principals to persist.
+     *
+     * @return void Nothing is returned.
+     */
+    public function saveForProductType(int $productTypeId, array $principals): void
+    {
+        $this->validatePrincipals($principals);
+        $this->repository()->saveForProductType($productTypeId, $principals);
+        $this->resetQueryMemo();
+    }
+
+    /**
+     * Removes a Commerce product-type default policy.
+     *
+     * @param int $productTypeId Product type ID.
+     *
+     * @return bool Whether a policy was deleted.
+     */
+    public function deleteForProductType(int $productTypeId): bool
+    {
+        $deleted = $this->repository()->deleteByProductTypeId($productTypeId);
+        if ($deleted) {
+            $this->resetQueryMemo();
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Clears request-scoped query integrator memos after policy changes.
+     *
+     * @return void Nothing is returned.
+     */
+    private function resetQueryMemo(): void
+    {
+        Plugin::getInstance()->getElementQueryIntegrator()->resetMemo();
     }
 
     /**

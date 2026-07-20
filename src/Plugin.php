@@ -12,8 +12,8 @@ namespace amici\SuperContentAccess;
 
 use amici\SuperContentAccess\base\PluginTrait;
 use amici\SuperContentAccess\fields\AccessControlField;
+use amici\SuperContentAccess\helpers\CommerceHelper;
 use amici\SuperContentAccess\models\Settings;
-use amici\SuperContentAccess\variables\SuperContentAccessVariable;
 use amici\SuperContentAccess\widgets\AccessBreakdown;
 use amici\SuperContentAccess\widgets\AccessOverview;
 use Craft;
@@ -21,6 +21,7 @@ use craft\base\Element;
 use craft\base\Model;
 use craft\base\Plugin as CraftPlugin;
 use craft\console\Application as ConsoleApplication;
+use craft\elements\Category;
 use craft\elements\Entry;
 use craft\events\DefineHtmlEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -30,7 +31,6 @@ use craft\helpers\UrlHelper;
 use craft\services\Dashboard;
 use craft\services\Fields;
 use craft\services\UserPermissions;
-use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use yii\base\Event;
 
@@ -88,13 +88,12 @@ class Plugin extends CraftPlugin
         }
 
         $this->_setPluginComponents();
-        $this->_registerVariables();
         $this->_registerFieldType();
         $this->_registerElementSidebarWidget();
         $this->_registerDashboardWidgets();
         $this->_registerCpRoutes();
         $this->_registerPermissions();
-        $this->getEntryQueryIntegrator()->register();
+        $this->getElementQueryIntegrator()->register();
 
         Craft::info(
             Craft::t('super-content-access', '{name} plugin loaded', ['name' => $this->name]),
@@ -175,24 +174,6 @@ class Plugin extends CraftPlugin
     }
 
     /**
-     * Registers the Twig variable as `craft.superContentAccess`.
-     *
-     * @return void Nothing is returned.
-     */
-    private function _registerVariables(): void
-    {
-        Event::on(
-            CraftVariable::class,
-            CraftVariable::EVENT_INIT,
-            static function (Event $event): void {
-                /** @var CraftVariable $variable */
-                $variable = $event->sender;
-                $variable->set('superContentAccess', SuperContentAccessVariable::class);
-            }
-        );
-    }
-
-    /**
      * Registers dashboard widget types with Craft.
      *
      * @return void Nothing is returned.
@@ -210,30 +191,33 @@ class Plugin extends CraftPlugin
     }
 
     /**
-     * Appends the read-only access summary to entry editor sidebars.
+     * Appends the read-only access summary to supported element editor sidebars.
      *
      * @return void Nothing is returned.
      */
     private function _registerElementSidebarWidget(): void
     {
-        Event::on(
-            Entry::class,
-            Element::EVENT_DEFINE_SIDEBAR_HTML,
-            function (DefineHtmlEvent $event): void {
-                $element = $event->sender;
-
-                if (!$element instanceof Entry) {
-                    return;
-                }
-
-                $html = $this->getElementSidebarWidget()->render($element, $event->static);
-                if ($html === '') {
-                    return;
-                }
-
-                $event->html .= "\n" . $html;
+        $handler = function (DefineHtmlEvent $event): void {
+            $element = $event->sender;
+            if (!$element instanceof Element) {
+                return;
             }
-        );
+
+            $html = $this->getElementSidebarWidget()->render($element, $event->static);
+            if ($html === '') {
+                return;
+            }
+
+            $event->html .= "\n" . $html;
+        };
+
+        Event::on(Entry::class, Element::EVENT_DEFINE_SIDEBAR_HTML, $handler);
+        Event::on(Category::class, Element::EVENT_DEFINE_SIDEBAR_HTML, $handler);
+
+        $productClass = 'craft\\commerce\\elements\\Product';
+        if (CommerceHelper::isAvailable() && class_exists($productClass)) {
+            Event::on($productClass, Element::EVENT_DEFINE_SIDEBAR_HTML, $handler);
+        }
     }
 
     /**
@@ -252,6 +236,10 @@ class Plugin extends CraftPlugin
                 $event->rules['super-content-access/access'] = 'super-content-access/access/index';
                 $event->rules['super-content-access/access/channels'] = 'super-content-access/access/channels';
                 $event->rules['super-content-access/access/channels/<section:{handle}>'] = 'super-content-access/access/channel';
+                $event->rules['super-content-access/access/categories'] = 'super-content-access/access/categories';
+                $event->rules['super-content-access/access/categories/<group:{handle}>'] = 'super-content-access/access/category';
+                $event->rules['super-content-access/access/products'] = 'super-content-access/access/products';
+                $event->rules['super-content-access/access/products/<type:{handle}>'] = 'super-content-access/access/product';
             }
         );
     }

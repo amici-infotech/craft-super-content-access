@@ -4,12 +4,14 @@
 
 An access policy describes **who** may view protected content.
 
-A policy row is one of:
+A policy row is exactly one of:
 
-- **Entry policy** — `elementId` set; applies to that entry only.
-- **Channel default** — `sectionId` set; applies to every entry in that channel that has no entry policy.
+- **Element policy** — `elementId` set; applies to that entry, category, or product only.
+- **Channel default** — `sectionId` set; applies to every entry in that channel with no element policy.
+- **Category group default** — `groupId` set; applies to every category in that group with no element policy.
+- **Product type default** — `productTypeId` set; applies to every product of that type with no element policy (requires Craft Commerce).
 
-There is never both `elementId` and `sectionId` on the same row.
+Never combine multiple scope columns on the same row.
 
 ## Policy Principals
 
@@ -24,43 +26,36 @@ Built-in resolver types also include `guest` and `public` for the authorization 
 
 | Mode | Storage | Front-end result |
 |---|---|---|
-| **Everyone** | No policy for that entry/channel | Visible to all visitors |
+| **Everyone** | No policy for that element/scope | Visible to all visitors |
 | **Members only** | Policy with selected groups/users | Only matching logged-in members |
 | **Members only** with no audiences | Policy with zero principals | Fail-closed — hidden from everyone |
 
 ## Resolution Order
 
-For each entry:
+For each element:
 
-1. If an **entry policy** exists → that policy decides visibility.
-2. Else if a **channel default** exists → that policy decides visibility.
+1. If an **element policy** exists → that policy decides visibility.
+2. Else if a **scope default** exists (channel / category group / product type) → that policy decides visibility.
 3. Else → **public**.
 
 The same order is used by:
 
-- Entry query SQL filtering
-- Entry sidebar summary
-- `craft.superContentAccess.canAccess()` / PHP `AuthorizationService`
+- Element query SQL filtering
+- Element sidebar summary
+- PHP `AuthorizationService`
 
 ## Query-Level Authorization
 
-Front-end Entry queries are modified before SQL runs. Unauthorized entries are never hydrated.
+Front-end Entry, Category, and (when Commerce is available) Product queries are modified before SQL runs. Unauthorized elements are never hydrated.
 
 This applies automatically to:
 
-- Twig `craft.entries`
-- PHP `Entry::find()`
-- GraphQL (and other consumers) that use Craft Entry queries
+- Twig `craft.entries` / `craft.categories` / `craft.products`
+- PHP `Entry::find()` / `Category::find()` / `Product::find()`
+- GraphQL (and other consumers) that use those Craft element queries
 
 Control Panel requests bypass filtering so editors can always manage content.
 
 ## Fail Closed
 
 If a policy exists but no principal matches the current visitor, access is denied. Empty audience lists are valid and mean “protected, nobody allowed yet.”
-
-## Settings
-
-- `pluginName` — CP nav label.
-- `authorizationEnabled` — master switch for query filtering (CP still bypasses when on).
-
-Settings can also live in `config/super-content-access.php`. Keys in that file win over Project Config / CP values.

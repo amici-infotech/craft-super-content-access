@@ -12,19 +12,19 @@ This documentation is split by task so you can find the right guide quickly.
 
 ## Developer Reference
 
-- [Twig / Front-End Behaviour](twig-usage.md) — automatic query filtering and `craft.superContentAccess`.
+- [Twig / Front-End Behaviour](twig-usage.md) — automatic Entry query filtering on the front end.
 - [PHP API](php-api.md) — services, events, bypass helpers, and extension hooks.
 - [Console Probe](console.md) — verify SQL constraints with the query probe command.
 - [Troubleshooting](troubleshooting.md) — common setup, visibility, and performance issues.
 
 ## Quick Mental Model
 
-- An **Access Policy** belongs either to one entry (`elementId`) or to one channel (`sectionId`).
+- An **Access Policy** belongs to one element (`elementId`) or one default scope (`sectionId`, `groupId`, or `productTypeId`).
 - **Policy Principals** are the audiences on that policy (user groups and/or users).
-- **No policy** means public (everyone can see the entry).
+- **No policy** means public (everyone can see the element).
 - **Empty principals** on a policy means fail-closed (nobody can see it).
-- **Resolution order:** entry policy → else channel default → else public.
-- The **Access Control** field edits entry policies. The **sidebar** only displays effective access.
-- **General Access** edits channel defaults for all entries in that channel without their own policy.
-- Use `craft.superContentAccess.canAccess(entry)` for ad-hoc Twig checks; prefer `craft.entries` for lists.
+- **Resolution order:** element policy → else scope default → else public.
+- The **Access Control** field edits element policies. The **sidebar** only displays effective access.
+- **General Access** edits defaults for channels, category groups, and product types.
+- Prefer filtered element queries on the front end; unauthorized elements are omitted at the SQL layer.
 - Control Panel requests always bypass front-end filtering.

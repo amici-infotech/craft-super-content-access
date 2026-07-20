@@ -133,7 +133,7 @@ class QueryProbeController extends Controller
     {
         $plugin = Plugin::getInstance();
         $probe = $plugin->getQueryProbe();
-        $integrator = $plugin->getEntryQueryIntegrator();
+        $integrator = $plugin->getElementQueryIntegrator();
 
         // Disable production integrator so baseline/constrained modes stay comparable.
         $integrator->disable();

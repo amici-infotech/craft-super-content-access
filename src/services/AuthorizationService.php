@@ -11,17 +11,20 @@ namespace amici\SuperContentAccess\services;
 use amici\SuperContentAccess\domain\AccessPolicy;
 use amici\SuperContentAccess\domain\AuthorizationContext;
 use amici\SuperContentAccess\domain\contracts\AuthorizationServiceInterface;
+use amici\SuperContentAccess\domain\PolicyPrincipal;
+use amici\SuperContentAccess\helpers\CommerceHelper;
 use amici\SuperContentAccess\Plugin;
 use craft\base\Component;
 use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\elements\Category;
 use craft\elements\Entry;
 
 /**
  * Authorization helpers for single-element checks and context access.
  *
- * Resolves effective access the same way Entry queries do:
- * entry policy → else channel default → else public.
+ * Resolves effective access the same way element queries do:
+ * element policy → else type default (channel / category group / product type) → else public.
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
@@ -53,9 +56,7 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
             return true;
         }
 
-        $sectionId = $element instanceof Entry ? $element->sectionId : null;
-
-        return $this->canAccessElementId((int)$element->id, $context, $sectionId !== null ? (int)$sectionId : null);
+        return $this->canAccessElementId((int)$element->id, $context, $element);
     }
 
     /**
@@ -63,11 +64,11 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
      *
      * @param int $elementId Element ID to evaluate.
      * @param AuthorizationContext|null $context Optional context override.
-     * @param int|null $sectionId Optional section ID when already known (avoids a lookup).
+     * @param ElementInterface|null $element Optional element when already loaded.
      *
      * @return bool True when access is allowed.
      */
-    public function canAccessElementId(int $elementId, ?AuthorizationContext $context = null, ?int $sectionId = null): bool
+    public function canAccessElementId(int $elementId, ?AuthorizationContext $context = null, ?ElementInterface $element = null): bool
     {
         $context ??= $this->getContext();
 
@@ -88,39 +89,102 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
             return $pipeline->authorize($policy, $context);
         }
 
-        $sectionId ??= $this->sectionIdForElement($elementId);
-        if ($sectionId === null) {
-            return true;
-        }
-
-        $principals = $policies->getForSection($sectionId);
+        $principals = $this->defaultPrincipalsFor($elementId, $element);
         if ($principals === null) {
             return true;
         }
 
-        // Synthetic policy so the pipeline can evaluate channel defaults.
+        // Synthetic policy so the pipeline can evaluate scope defaults.
         return $pipeline->authorize(new AccessPolicy(0, $principals), $context);
     }
 
     /**
-     * Looks up the section ID for an entry element without running Entry queries.
+     * Resolves default-scope principals for an element without an element policy.
      *
      * @param int $elementId Element ID.
+     * @param ElementInterface|null $element Optional loaded element.
      *
-     * @return int|null Section ID, or null when the element is not an entry.
+     * @return PolicyPrincipal[]|null Principals, or null when public (no default).
      */
-    private function sectionIdForElement(int $elementId): ?int
+    private function defaultPrincipalsFor(int $elementId, ?ElementInterface $element = null): ?array
     {
-        $sectionId = (new Query())
-            ->select(['sectionId'])
-            ->from(['{{%entries}}'])
+        $policies = Plugin::getInstance()->getPolicies();
+
+        if ($element instanceof Entry || ($element === null && $this->isElementType($elementId, Entry::class))) {
+            $sectionId = $element instanceof Entry
+                ? ($element->sectionId !== null ? (int)$element->sectionId : null)
+                : $this->scalarId('{{%entries}}', 'sectionId', $elementId);
+
+            return $sectionId === null ? null : $policies->getForSection($sectionId);
+        }
+
+        if ($element instanceof Category || ($element === null && $this->isElementType($elementId, Category::class))) {
+            $groupId = $element instanceof Category
+                ? ($element->groupId !== null ? (int)$element->groupId : null)
+                : $this->scalarId('{{%categories}}', 'groupId', $elementId);
+
+            return $groupId === null ? null : $policies->getForGroup($groupId);
+        }
+
+        $productClass = 'craft\\commerce\\elements\\Product';
+        if (
+            CommerceHelper::isAvailable()
+            && class_exists($productClass)
+            && ($element instanceof $productClass || ($element === null && $this->isElementType($elementId, $productClass)))
+        ) {
+            $typeId = null;
+            if ($element !== null && isset($element->typeId)) {
+                $typeId = (int)$element->typeId;
+            } else {
+                $typeId = $this->scalarId('{{%commerce_products}}', 'typeId', $elementId);
+            }
+
+            return $typeId === null ? null : $policies->getForProductType($typeId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether the element row matches the given type class.
+     *
+     * @param int $elementId Element ID.
+     * @param class-string $type Element type class.
+     *
+     * @return bool True when the element type matches.
+     */
+    private function isElementType(int $elementId, string $type): bool
+    {
+        $found = (new Query())
+            ->select(['type'])
+            ->from(['{{%elements}}'])
             ->where(['id' => $elementId])
             ->scalar();
 
-        if ($sectionId === null || $sectionId === false || $sectionId === '') {
+        return $found === $type;
+    }
+
+    /**
+     * Reads a single ID column from an element-related table.
+     *
+     * @param string $table Table name.
+     * @param string $column Column to select.
+     * @param int $elementId Element ID (table primary key).
+     *
+     * @return int|null Column value, or null when missing.
+     */
+    private function scalarId(string $table, string $column, int $elementId): ?int
+    {
+        $value = (new Query())
+            ->select([$column])
+            ->from([$table])
+            ->where(['id' => $elementId])
+            ->scalar();
+
+        if ($value === null || $value === false || $value === '') {
             return null;
         }
 
-        return (int)$sectionId;
+        return (int)$value;
     }
 }

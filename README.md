@@ -6,11 +6,10 @@ Editors manage access from an **Access Control** field and see the effective pol
 
 ## Features
 
-- Restrict entry visibility to user groups and/or specific users.
-- Query-level authorization on `craft.entries` (Twig, PHP, GraphQL consumers of Entry queries).
-- Channel (section) default policies with entry-level overrides.
-- Read-only entry sidebar summary showing effective access (entry policy, else channel default).
-- Twig variable `craft.superContentAccess.canAccess()` for ad-hoc entry checks.
+- Restrict entry, category, and product visibility to user groups and/or specific users.
+- Query-level authorization on `craft.entries`, `craft.categories`, and `craft.products` (when Commerce is available).
+- Channel, category-group, and product-type default policies with element-level overrides.
+- Read-only element sidebar summary showing effective access.
 - Craft dashboard widgets for access overview and breakdown charts.
 - Plugin settings with `config/super-content-access.php` overrides.
 - Settings remain viewable when `allowAdminChanges` is false (read-only).
@@ -47,23 +46,22 @@ For the full setup flow, see the [documentation](docs/README.md).
 
 The plugin adds a **Super Content Access** section with:
 
-- **General Access** — channel default policies.
+- **General Access** — channel, category group, and product type default policies.
 - **Settings** — plugin name and authorization toggle.
 
-On entries, add the **Access Control** field to a field layout to edit per-entry rules. The sidebar shows a read-only summary of effective access.
+On entries, categories, and products, add the **Access Control** field to a field layout to edit per-element rules. The sidebar shows a read-only summary of effective access.
 
 ## Twig Quick Start
 
 ```twig
-{# Lists are filtered automatically #}
+{# Lists are filtered automatically — unauthorized elements never appear #}
 {% for entry in craft.entries.section('news').all() %}
     {{ entry.title }}
 {% endfor %}
 
-{# Ad-hoc check on a known entry #}
-{% if craft.superContentAccess.canAccess(entry) %}
-    {# allowed #}
-{% endif %}
+{% for category in craft.categories.group('topics').all() %}
+    {{ category.title }}
+{% endfor %}
 ```
 
 ## Permissions

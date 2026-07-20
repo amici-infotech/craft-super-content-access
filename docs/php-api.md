@@ -28,16 +28,22 @@ $policies->saveForElement(123, [
 $policies->deleteForElement(123); // back to public (unless a channel default applies)
 ```
 
-### Channel Defaults
+### Channel / Group / Product Type Defaults
 
 ```php
 $principals = $policies->getForSection($sectionId); // null = no channel default
-
 $policies->saveForSection($sectionId, [
     new PolicyPrincipal(PrincipalType::GROUP, '2'),
 ]);
-
 $policies->deleteForSection($sectionId);
+
+$policies->getForGroup($groupId);
+$policies->saveForGroup($groupId, [/* … */]);
+$policies->deleteForGroup($groupId);
+
+$policies->getForProductType($productTypeId); // requires Commerce
+$policies->saveForProductType($productTypeId, [/* … */]);
+$policies->deleteForProductType($productTypeId);
 ```
 
 ## Authorization Service
@@ -50,29 +56,21 @@ $allowed = $auth->canAccessElement($entry);
 $allowed = $auth->canAccessElementId(123);
 ```
 
-CP requests always return `true` from `canAccessElement*`. Effective access matches Entry queries (entry policy → channel default → public).
+CP requests always return `true` from `canAccessElement*`. Effective access matches element queries (element policy → scope default → public).
 
-## Twig Variable
-
-Templates use the same check via:
-
-```twig
-{% if craft.superContentAccess.canAccess(entry) %}
-{% endif %}
-```
-
-See [Twig / Front-End Behaviour](twig-usage.md).
+Use this from PHP when you already hold an element ID outside a filtered query (for example custom controllers or modules). Front-end Twig does not need a parallel helper — filtered queries already omit unauthorized elements.
 
 ## Bypass Query Authorization
 
-To run an Entry query without access filtering (for admin tools, exports, etc.):
+To run element queries without access filtering (for admin tools, exports, etc.):
 
 ```php
-$integrator = Plugin::getInstance()->getEntryQueryIntegrator();
+$integrator = Plugin::getInstance()->getElementQueryIntegrator();
 $integrator->disable();
 
 try {
     $entries = Entry::find()->section('news')->all();
+    $categories = \craft\elements\Category::find()->all();
 } finally {
     $integrator->enable();
 }

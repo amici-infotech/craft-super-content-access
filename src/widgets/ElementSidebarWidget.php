@@ -16,10 +16,12 @@ use amici\SuperContentAccess\domain\AccessPolicy;
 use amici\SuperContentAccess\domain\PolicyPrincipal;
 use amici\SuperContentAccess\domain\PrincipalType;
 use amici\SuperContentAccess\fields\AccessControlField;
+use amici\SuperContentAccess\helpers\CommerceHelper;
 use amici\SuperContentAccess\Plugin;
 use Craft;
 use craft\base\Component;
 use craft\base\ElementInterface;
+use craft\elements\Category;
 use craft\elements\Entry;
 use craft\elements\User;
 use craft\helpers\ElementHelper;
@@ -39,11 +41,21 @@ class ElementSidebarWidget extends Component
      *
      * @param ElementInterface $element Candidate element.
      *
-     * @return bool True for saved entries.
+     * @return bool True for saved entries, categories, and products.
      */
     public function supports(ElementInterface $element): bool
     {
-        return $element instanceof Entry && $element->id !== null;
+        if ($element->id === null) {
+            return false;
+        }
+
+        if ($element instanceof Entry || $element instanceof Category) {
+            return true;
+        }
+
+        $productClass = 'craft\\commerce\\elements\\Product';
+
+        return CommerceHelper::isAvailable() && class_exists($productClass) && $element instanceof $productClass;
     }
 
     /**
@@ -67,20 +79,16 @@ class ElementSidebarWidget extends Component
 
         $policies = Plugin::getInstance()->getPolicies();
         $policy = $policies->getForElementId($elementId);
-
-        // Effective access resolves entry-level policy first, then the channel
-        // (general access) default, matching how the query layer enforces it.
-        $section = $element instanceof Entry ? $element->getSection() : null;
-        $sectionPrincipals = $section !== null ? $policies->getForSection((int)$section->id) : null;
+        $scope = $this->resolveScope($element, $policies);
 
         if ($policy instanceof AccessPolicy) {
             $principals = $policy->principals;
             $restricted = true;
-            $source = 'entry';
-        } elseif ($sectionPrincipals !== null) {
-            $principals = $sectionPrincipals;
+            $source = 'element';
+        } elseif ($scope !== null) {
+            $principals = $scope['principals'];
             $restricted = true;
-            $source = 'channel';
+            $source = $scope['source'];
         } else {
             $principals = [];
             $restricted = false;
@@ -88,7 +96,7 @@ class ElementSidebarWidget extends Component
         }
 
         // Only surface the summary where access is manageable (field present),
-        // an entry policy exists, or a channel default applies.
+        // an element policy exists, or a scope default applies.
         if ($source === 'none' && !$this->hasAccessControlField($element)) {
             return '';
         }
@@ -104,11 +112,105 @@ class ElementSidebarWidget extends Component
             'groupNames' => $groupNames,
             'userNames' => $userNames,
             'source' => $source,
-            'channelName' => $section?->name,
-            'channelUrl' => $section !== null
-                ? UrlHelper::cpUrl('super-content-access/access/channels/' . $section->handle)
-                : null,
+            'elementLabel' => $this->elementLabel($element),
+            'scopeName' => $scope['name'] ?? null,
+            'scopeUrl' => $scope['url'] ?? null,
+            'scopeKind' => $scope['kind'] ?? null,
         ]);
+    }
+
+    /**
+     * Resolves inherited default-scope policy details for the element.
+     *
+     * @param ElementInterface $element Element being edited.
+     * @param \amici\SuperContentAccess\services\PolicyService $policies Policy service.
+     *
+     * @return array{principals: PolicyPrincipal[], source: string, name: string, url: string, kind: string}|null
+     */
+    private function resolveScope(ElementInterface $element, $policies): ?array
+    {
+        if ($element instanceof Entry) {
+            $section = $element->getSection();
+            if ($section === null) {
+                return null;
+            }
+
+            $principals = $policies->getForSection((int)$section->id);
+            if ($principals === null) {
+                return null;
+            }
+
+            return [
+                'principals' => $principals,
+                'source' => 'channel',
+                'name' => $section->name,
+                'url' => UrlHelper::cpUrl('super-content-access/access/channels/' . $section->handle),
+                'kind' => Craft::t('super-content-access', 'channel'),
+            ];
+        }
+
+        if ($element instanceof Category) {
+            $group = $element->getGroup();
+            if ($group === null) {
+                return null;
+            }
+
+            $principals = $policies->getForGroup((int)$group->id);
+            if ($principals === null) {
+                return null;
+            }
+
+            return [
+                'principals' => $principals,
+                'source' => 'group',
+                'name' => $group->name,
+                'url' => UrlHelper::cpUrl('super-content-access/access/categories/' . $group->handle),
+                'kind' => Craft::t('super-content-access', 'category group'),
+            ];
+        }
+
+        $productClass = 'craft\\commerce\\elements\\Product';
+        if (CommerceHelper::isAvailable() && class_exists($productClass) && $element instanceof $productClass) {
+            $type = method_exists($element, 'getType') ? $element->getType() : null;
+            if ($type === null || !isset($type->id)) {
+                return null;
+            }
+
+            $principals = $policies->getForProductType((int)$type->id);
+            if ($principals === null) {
+                return null;
+            }
+
+            return [
+                'principals' => $principals,
+                'source' => 'productType',
+                'name' => (string)$type->name,
+                'url' => UrlHelper::cpUrl('super-content-access/access/products/' . $type->handle),
+                'kind' => Craft::t('super-content-access', 'product type'),
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Human label for the element type in sidebar copy.
+     *
+     * @param ElementInterface $element Element being edited.
+     *
+     * @return string Localized element type label.
+     */
+    private function elementLabel(ElementInterface $element): string
+    {
+        if ($element instanceof Entry) {
+            return Craft::t('app', 'entry');
+        }
+
+        if ($element instanceof Category) {
+            return Craft::t('app', 'category');
+        }
+
+        return Craft::t('app', 'product');
     }
 
     /**

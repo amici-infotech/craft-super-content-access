@@ -22,6 +22,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property int|null $elementId
  * @property int|null $sectionId
+ * @property int|null $groupId
+ * @property int|null $productTypeId
  * @property string $dateCreated
  * @property string $dateUpdated
  * @property string $uid

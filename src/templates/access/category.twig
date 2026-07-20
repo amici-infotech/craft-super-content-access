@@ -1,0 +1,42 @@
+{% extends 'super-content-access/access/_layout' %}
+
+{% set fullPageForm = true %}
+
+{% set crumbs = [
+    { label: 'Super Content Access'|t('super-content-access'), url: url('super-content-access') },
+    { label: 'General Access'|t('super-content-access'), url: url('super-content-access/access/categories') },
+] %}
+
+{% block content %}
+    {{ actionInput('super-content-access/access/save-category') }}
+    {{ redirectInput('super-content-access/access/categories/' ~ group.handle) }}
+    {{ hiddenInput('groupId', group.id) }}
+
+    <div class="sca-channel-meta">
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Category group'|t('super-content-access') }}</span>
+            <span class="sca-channel-meta__value">{{ group.name }}</span>
+        </span>
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Handle'|t('app') }}</span>
+            <span class="sca-channel-meta__value"><code>{{ group.handle }}</code></span>
+        </span>
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Categories'|t('app') }}</span>
+            <span class="sca-channel-meta__value">{{ categoryCount }}</span>
+        </span>
+    </div>
+
+    <p class="sca-intro">
+        {{ 'Choose who can view categories in this group by default. Individual categories can override this with their own Access Control field.'|t('super-content-access') }}
+    </p>
+
+    {% include 'super-content-access/_includes/policy-editor' with {
+        id: 'sca-group-' ~ group.id,
+        name: 'policy',
+        value: value,
+        groupOptions: groupOptions,
+        selectedUsers: selectedUsers,
+        userElementType: userElementType,
+    } only %}
+{% endblock %}

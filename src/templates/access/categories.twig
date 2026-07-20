@@ -1,0 +1,52 @@
+{% extends 'super-content-access/access/_layout' %}
+
+{% set crumbs = [
+    { label: 'Super Content Access'|t('super-content-access'), url: url('super-content-access') },
+] %}
+
+{% block content %}
+    <p class="sca-intro">
+        {{ 'Set a default access policy for a whole category group. It applies to every category in that group that does not have its own access rules.'|t('super-content-access') }}
+    </p>
+
+    {% if groups|length %}
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'Name'|t('app') }}</th>
+                    <th scope="col">{{ 'Handle'|t('app') }}</th>
+                    <th scope="col">{{ 'Default access'|t('super-content-access') }}</th>
+                    <th scope="col" class="thin"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in groups %}
+                    {% set editUrl = url('super-content-access/access/categories/' ~ row.group.handle) %}
+                    <tr>
+                        <th scope="row" data-title="{{ 'Name'|t('app') }}">
+                            <a href="{{ editUrl }}">{{ row.group.name }}</a>
+                        </th>
+                        <td data-title="{{ 'Handle'|t('app') }}">
+                            <code>{{ row.group.handle }}</code>
+                        </td>
+                        <td data-title="{{ 'Default access'|t('super-content-access') }}">
+                            {% if not row.restricted %}
+                                <span class="status green"></span>{{ 'Public'|t('super-content-access') }}
+                            {% elseif row.empty %}
+                                <span class="status red"></span>{{ 'No one (blocked)'|t('super-content-access') }}
+                            {% else %}
+                                <span class="status orange"></span>{{ 'Members only'|t('super-content-access') }}
+                                <span class="light">({{ row.count }})</span>
+                            {% endif %}
+                        </td>
+                        <td class="thin">
+                            <a class="go" href="{{ editUrl }}" title="{{ 'Edit'|t('app') }}"></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="zilch">{{ 'No category groups found.'|t('super-content-access') }}</p>
+    {% endif %}
+{% endblock %}

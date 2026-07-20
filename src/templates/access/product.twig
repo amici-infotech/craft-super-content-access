@@ -1,0 +1,42 @@
+{% extends 'super-content-access/access/_layout' %}
+
+{% set fullPageForm = true %}
+
+{% set crumbs = [
+    { label: 'Super Content Access'|t('super-content-access'), url: url('super-content-access') },
+    { label: 'General Access'|t('super-content-access'), url: url('super-content-access/access/products') },
+] %}
+
+{% block content %}
+    {{ actionInput('super-content-access/access/save-product') }}
+    {{ redirectInput('super-content-access/access/products/' ~ type.handle) }}
+    {{ hiddenInput('productTypeId', type.id) }}
+
+    <div class="sca-channel-meta">
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Product type'|t('super-content-access') }}</span>
+            <span class="sca-channel-meta__value">{{ type.name }}</span>
+        </span>
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Handle'|t('app') }}</span>
+            <span class="sca-channel-meta__value"><code>{{ type.handle }}</code></span>
+        </span>
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Products'|t('app') }}</span>
+            <span class="sca-channel-meta__value">{{ productCount }}</span>
+        </span>
+    </div>
+
+    <p class="sca-intro">
+        {{ 'Choose who can view products of this type by default. Individual products can override this with their own Access Control field.'|t('super-content-access') }}
+    </p>
+
+    {% include 'super-content-access/_includes/policy-editor' with {
+        id: 'sca-product-type-' ~ type.id,
+        name: 'policy',
+        value: value,
+        groupOptions: groupOptions,
+        selectedUsers: selectedUsers,
+        userElementType: userElementType,
+    } only %}
+{% endblock %}

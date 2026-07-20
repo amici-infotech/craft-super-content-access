@@ -6,7 +6,7 @@
 2. Check the sidebar summary — if it says inherited from the channel, the entry itself may still be “Everyone” while the channel default restricts it.
 3. Confirm **Enable authorization** is on (and not forced off in `config/super-content-access.php`).
 4. CP always bypasses filtering — test on the front end while logged out or as another user.
-5. For a single known entry, verify with `{% if craft.superContentAccess.canAccess(entry) %}`.
+5. Use `php craft super-content-access/query-probe` (see [Console Probe](console.md)) or PHP `AuthorizationService::canAccessElementId()` to verify a known entry ID.
 
 ## Channel Default Not Applying
 
@@ -14,7 +14,7 @@
 2. Entry-level policies override channel defaults. Clear the entry’s Access Control field (Everyone) to inherit the channel rule.
 3. Only Craft sections of type **channel** appear in General Access.
 
-## `canAccess` Says Allowed but Query Hides It (or the Reverse)
+## PHP `canAccess` Disagrees With a Front-End Query
 
 Both paths use the same resolution order (entry → channel → public). If they disagree:
 
@@ -43,7 +43,7 @@ There is no Twig bypass. From PHP, temporarily disable the integrator (see [PHP 
 
 ## GraphQL / Custom Queries
 
-Only **Entry** element queries are integrated in v1. Other element types are not filtered yet. Custom raw SQL that bypasses `Entry::find()` will also bypass the plugin.
+Only **Entry**, **Category**, and (when Commerce is available) **Product** element queries are integrated. Other element types are not filtered yet. Custom raw SQL that bypasses those Craft element queries will also bypass the plugin.
 
 ## Probe Disagrees With Front End
 

@@ -14,6 +14,12 @@ use craft\db\Table;
 /**
  * Install migration — creates access policy and principal tables.
  *
+ * Policy rows are scoped by exactly one of:
+ * - elementId (per-element)
+ * - sectionId (channel default for entries)
+ * - groupId (category group default)
+ * - productTypeId (Commerce product type default)
+ *
  * @author  Amici Infotech
  * @package SuperContentAccess
  * @since   5.0.0
@@ -72,6 +78,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'elementId' => $this->integer()->null(),
             'sectionId' => $this->integer()->null(),
+            'groupId' => $this->integer()->null(),
+            'productTypeId' => $this->integer()->null(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -97,6 +105,8 @@ class Install extends Migration
     {
         $this->createIndex(null, self::TABLE_POLICIES, 'elementId', true);
         $this->createIndex(null, self::TABLE_POLICIES, 'sectionId', true);
+        $this->createIndex(null, self::TABLE_POLICIES, 'groupId', true);
+        $this->createIndex(null, self::TABLE_POLICIES, 'productTypeId', true);
         $this->createIndex(null, self::TABLE_PRINCIPALS, 'policyId', false);
         $this->createIndex(null, self::TABLE_PRINCIPALS, ['type', 'identifier'], false);
         $this->createIndex(null, self::TABLE_PRINCIPALS, ['policyId', 'type', 'identifier'], false);
@@ -128,6 +138,29 @@ class Install extends Migration
             'CASCADE',
             null
         );
+
+        $this->addForeignKey(
+            null,
+            self::TABLE_POLICIES,
+            'groupId',
+            Table::CATEGORYGROUPS,
+            'id',
+            'CASCADE',
+            null
+        );
+
+        // Soft dependency: only FK when Commerce product types table exists.
+        if ($this->db->tableExists('{{%commerce_producttypes}}')) {
+            $this->addForeignKey(
+                null,
+                self::TABLE_POLICIES,
+                'productTypeId',
+                '{{%commerce_producttypes}}',
+                'id',
+                'CASCADE',
+                null
+            );
+        }
 
         $this->addForeignKey(
             null,

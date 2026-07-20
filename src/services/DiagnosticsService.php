@@ -70,6 +70,8 @@ class DiagnosticsService extends Component
             'totalPolicyCount' => $repository->countPolicies(),
             'elementPolicyCount' => $repository->countElementPolicies(),
             'sectionPolicyCount' => $repository->countSectionPolicies(),
+            'groupPolicyCount' => $repository->countGroupPolicies(),
+            'productTypePolicyCount' => $repository->countProductTypePolicies(),
             'principalCount' => $principals['total'],
             'channelCount' => $channelCount,
             'restrictedChannelCount' => $repository->countSectionPolicies(),
@@ -97,7 +99,7 @@ class DiagnosticsService extends Component
             'byScope' => [
                 [
                     'key' => 'element',
-                    'label' => Craft::t('super-content-access', 'Entry policies'),
+                    'label' => Craft::t('super-content-access', 'Element policies'),
                     'value' => $repository->countElementPolicies(),
                     'color' => '#2e70e6',
                 ],
@@ -106,6 +108,18 @@ class DiagnosticsService extends Component
                     'label' => Craft::t('super-content-access', 'Channel defaults'),
                     'value' => $repository->countSectionPolicies(),
                     'color' => '#cf7118',
+                ],
+                [
+                    'key' => 'group',
+                    'label' => Craft::t('super-content-access', 'Category group defaults'),
+                    'value' => $repository->countGroupPolicies(),
+                    'color' => '#14884a',
+                ],
+                [
+                    'key' => 'productType',
+                    'label' => Craft::t('super-content-access', 'Product type defaults'),
+                    'value' => $repository->countProductTypePolicies(),
+                    'color' => '#805ad5',
                 ],
             ],
             'byPrincipalType' => [

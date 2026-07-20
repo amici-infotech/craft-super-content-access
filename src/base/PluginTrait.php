@@ -11,7 +11,7 @@ namespace amici\SuperContentAccess\base;
 use amici\SuperContentAccess\authorization\AuthorizationContextFactory;
 use amici\SuperContentAccess\authorization\AuthorizationPipeline;
 use amici\SuperContentAccess\authorization\ResolverRegistry;
-use amici\SuperContentAccess\query\EntryQueryIntegrator;
+use amici\SuperContentAccess\query\ElementQueryIntegrator;
 use amici\SuperContentAccess\query\QueryProbe;
 use amici\SuperContentAccess\repositories\PolicyRepository;
 use amici\SuperContentAccess\services\AuthorizationService;
@@ -35,7 +35,7 @@ use amici\SuperContentAccess\widgets\ElementSidebarWidget;
  * @property-read AuthorizationContextFactory $contextFactory
  * @property-read AuthorizationPipeline $pipeline
  * @property-read ResolverRegistry $resolverRegistry
- * @property-read EntryQueryIntegrator $entryQueryIntegrator
+ * @property-read ElementQueryIntegrator $elementQueryIntegrator
  * @property-read ElementSidebarWidget $elementSidebarWidget
  * @property-read QueryProbe $queryProbe
  */
@@ -56,7 +56,7 @@ trait PluginTrait
             'contextFactory' => AuthorizationContextFactory::class,
             'pipeline' => AuthorizationPipeline::class,
             'resolverRegistry' => ResolverRegistry::class,
-            'entryQueryIntegrator' => EntryQueryIntegrator::class,
+            'elementQueryIntegrator' => ElementQueryIntegrator::class,
             'elementSidebarWidget' => ElementSidebarWidget::class,
             'queryProbe' => QueryProbe::class,
         ]);
@@ -133,13 +133,23 @@ trait PluginTrait
     }
 
     /**
-     * Returns the entry query integrator that applies access constraints.
+     * Returns the element query integrator that applies access constraints.
      *
-     * @return EntryQueryIntegrator The entry query integrator instance.
+     * @return ElementQueryIntegrator The element query integrator instance.
      */
-    public function getEntryQueryIntegrator(): EntryQueryIntegrator
+    public function getElementQueryIntegrator(): ElementQueryIntegrator
     {
-        return $this->get('entryQueryIntegrator');
+        return $this->get('elementQueryIntegrator');
+    }
+
+    /**
+     * @deprecated Use getElementQueryIntegrator().
+     *
+     * @return ElementQueryIntegrator The element query integrator instance.
+     */
+    public function getEntryQueryIntegrator(): ElementQueryIntegrator
+    {
+        return $this->getElementQueryIntegrator();
     }
 
     /**

@@ -111,7 +111,7 @@ class QueryProbe extends Component
             $isGuest,
         );
 
-        Plugin::getInstance()->getEntryQueryIntegrator()->applyAccessConstraint($query, $context);
+        Plugin::getInstance()->getElementQueryIntegrator()->applyAccessConstraint($query, $context);
     }
 
     /**
