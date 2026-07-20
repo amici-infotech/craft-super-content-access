@@ -1,0 +1,61 @@
+{% set iconUsers %}
+<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
+    <path fill="currentColor" d="M5.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm5 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM5.5 9C3 9 1 10.3 1 12v1h9v-1c0-1.7-2-3-4.5-3Zm5 0c-.5 0-1 .05-1.4.15C10.3 9.9 11 10.9 11 12v1h4v-1c0-1.7-2-3-4.5-3Z"/>
+</svg>
+{% endset %}
+
+{% set iconUser %}
+<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
+    <path fill="currentColor" d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0 1c-2.7 0-5 1.5-5 3.5V14h10v-1.5C13 10.5 10.7 9 8 9Z"/>
+</svg>
+{% endset %}
+
+<div class="sca-summary">
+    <div class="sca-summary__head">
+        <span class="sca-summary__title">{{ 'Access'|t('super-content-access') }}</span>
+        <span class="sca-summary__badge sca-summary__badge--{{ restricted ? 'restricted' : 'public' }}">
+            {{ restricted ? 'Members only'|t('super-content-access') : 'Public'|t('super-content-access') }}
+        </span>
+    </div>
+
+    {% if source == 'channel' %}
+        <p class="sca-summary__source">
+            {% if channelUrl %}
+                {{ 'Inherited from the {channel} channel default.'|t('super-content-access', {
+                    channel: '<a href="' ~ channelUrl ~ '">' ~ channelName ~ '</a>',
+                })|raw }}
+            {% else %}
+                {{ 'Inherited from the channel default.'|t('super-content-access') }}
+            {% endif %}
+            {{ 'Set this entry’s Access Control field to override it.'|t('super-content-access') }}
+        </p>
+    {% elseif source == 'entry' %}
+        <p class="sca-summary__source">{{ 'Set on this entry.'|t('super-content-access') }}</p>
+    {% endif %}
+
+    {% if not restricted %}
+        <p class="sca-summary__desc">
+            {{ 'Anyone can view this entry on the front end.'|t('super-content-access') }}
+        </p>
+    {% elseif empty %}
+        <p class="sca-summary__desc sca-summary__desc--alert">
+            {{ 'No members chosen yet — this entry is hidden from everyone.'|t('super-content-access') }}
+        </p>
+    {% else %}
+        <p class="sca-summary__desc">
+            {{ 'Visible only to these members:'|t('super-content-access') }}
+        </p>
+        <div class="sca-summary__chips">
+            {% for groupName in groupNames %}
+                <span class="sca-summary__chip">
+                    <span class="sca-summary__chip-icon">{{ iconUsers|raw }}</span>{{ groupName }}
+                </span>
+            {% endfor %}
+            {% for userName in userNames %}
+                <span class="sca-summary__chip">
+                    <span class="sca-summary__chip-icon">{{ iconUser|raw }}</span>{{ userName }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

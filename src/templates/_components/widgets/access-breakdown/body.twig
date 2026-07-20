@@ -1,0 +1,41 @@
+{% set total = total|default(0) %}
+
+{% if total == 0 %}
+    <p class="zilch">{{ 'No access policies yet.'|t('super-content-access') }}</p>
+{% else %}
+    {% set gradientStops = [] %}
+    {% set cursor = 0 %}
+    {% for item in series %}
+        {% set start = (cursor / total) * 100 %}
+        {% set cursor = cursor + item.value %}
+        {% set end = (cursor / total) * 100 %}
+        {% set gradientStops = gradientStops|merge([
+            item.color ~ ' ' ~ start ~ '% ' ~ end ~ '%'
+        ]) %}
+    {% endfor %}
+
+    <div class="sca-widget-breakdown">
+        <div class="sca-widget-donut"
+             style="background: conic-gradient({{ gradientStops|join(', ') }});"
+             role="img"
+             aria-label="{{ 'Access breakdown chart'|t('super-content-access') }}">
+            <div class="sca-widget-donut__hole">
+                <strong>{{ total }}</strong>
+                <span>{{ 'total'|t('super-content-access') }}</span>
+            </div>
+        </div>
+
+        <ul class="sca-widget-legend">
+            {% for item in series %}
+                <li>
+                    <span class="sca-widget-legend__swatch" style="background: {{ item.color }};"></span>
+                    <span class="sca-widget-legend__label">{{ item.label }}</span>
+                    <span class="sca-widget-legend__value">
+                        {{ item.value }}
+                        <span class="light">({{ total ? ((item.value / total) * 100)|round : 0 }}%)</span>
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

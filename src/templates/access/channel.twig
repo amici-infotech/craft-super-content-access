@@ -1,0 +1,42 @@
+{% extends 'super-content-access/access/_layout' %}
+
+{% set fullPageForm = true %}
+
+{% set crumbs = [
+    { label: 'Super Content Access'|t('super-content-access'), url: url('super-content-access') },
+    { label: 'General Access'|t('super-content-access'), url: url('super-content-access/access/channels') },
+] %}
+
+{% block content %}
+    {{ actionInput('super-content-access/access/save-channel') }}
+    {{ redirectInput('super-content-access/access/channels/' ~ section.handle) }}
+    {{ hiddenInput('sectionId', section.id) }}
+
+    <div class="sca-channel-meta">
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Channel'|t('super-content-access') }}</span>
+            <span class="sca-channel-meta__value">{{ section.name }}</span>
+        </span>
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Handle'|t('app') }}</span>
+            <span class="sca-channel-meta__value"><code>{{ section.handle }}</code></span>
+        </span>
+        <span class="sca-channel-meta__item">
+            <span class="sca-channel-meta__label">{{ 'Entries'|t('app') }}</span>
+            <span class="sca-channel-meta__value">{{ entryCount }}</span>
+        </span>
+    </div>
+
+    <p class="sca-intro">
+        {{ 'Choose who can view entries in this channel by default. Individual entries can override this with their own Access Control field.'|t('super-content-access') }}
+    </p>
+
+    {% include 'super-content-access/_includes/policy-editor' with {
+        id: 'sca-channel-' ~ section.id,
+        name: 'policy',
+        value: value,
+        groupOptions: groupOptions,
+        selectedUsers: selectedUsers,
+        userElementType: userElementType,
+    } only %}
+{% endblock %}

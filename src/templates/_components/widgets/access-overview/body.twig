@@ -1,0 +1,36 @@
+<div class="sca-widget-overview">
+    <div class="sca-widget-overview__status sca-widget-overview__status--{{ overview.authorizationEnabled ? 'on' : 'off' }}">
+        <span class="status {{ overview.authorizationEnabled ? 'green' : 'red' }}"></span>
+        {{ overview.authorizationEnabled
+            ? 'Authorization enabled'|t('super-content-access')
+            : 'Authorization disabled'|t('super-content-access') }}
+    </div>
+
+    <div class="sca-widget-stats">
+        <div class="sca-widget-stat">
+            <strong class="sca-widget-stat__value">{{ overview.totalPolicyCount }}</strong>
+            <span class="sca-widget-stat__label">{{ 'Policies'|t('super-content-access') }}</span>
+        </div>
+        <div class="sca-widget-stat">
+            <strong class="sca-widget-stat__value">{{ overview.elementPolicyCount }}</strong>
+            <span class="sca-widget-stat__label">{{ 'Entry policies'|t('super-content-access') }}</span>
+        </div>
+        <div class="sca-widget-stat">
+            <strong class="sca-widget-stat__value">{{ overview.sectionPolicyCount }}</strong>
+            <span class="sca-widget-stat__label">{{ 'Channel defaults'|t('super-content-access') }}</span>
+        </div>
+        <div class="sca-widget-stat">
+            <strong class="sca-widget-stat__value">{{ overview.principalCount }}</strong>
+            <span class="sca-widget-stat__label">{{ 'Audience rules'|t('super-content-access') }}</span>
+        </div>
+    </div>
+
+    <p class="sca-widget-overview__meta">
+        {{ '{restricted} of {total} channels have a default policy'|t('super-content-access', {
+            restricted: overview.restrictedChannelCount,
+            total: overview.channelCount,
+        }) }}
+        ·
+        <a href="{{ url('super-content-access/access/channels') }}">{{ 'Manage General Access'|t('super-content-access') }}</a>
+    </p>
+</div>

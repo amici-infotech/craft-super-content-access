@@ -1,0 +1,39 @@
+{% extends '_layouts/cp.twig' %}
+{% set title = 'Settings'|t('super-content-access') %}
+{% set selectedSubnavItem = 'settings' %}
+{% set fullPageForm = true %}
+
+{% set crumbs = [
+    {
+        label: plugin.name,
+        url: url('super-content-access'),
+    },
+] %}
+
+{% import '_includes/forms.twig' as forms %}
+{% import 'super-content-access/_macros' as macros %}
+
+{% block content %}
+    {{ actionInput('super-content-access/settings/save') }}
+    {{ redirectInput('super-content-access/settings') }}
+    {{ csrfInput() }}
+
+    {{ forms.textField({
+        label: 'Plugin Name'|t('super-content-access'),
+        id: 'pluginName',
+        name: 'pluginName',
+        value: settings.pluginName,
+        required: true,
+        first: true,
+        warning: macros.configWarning('pluginName', 'super-content-access'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Enable authorization'|t('super-content-access'),
+        id: 'authorizationEnabled',
+        name: 'authorizationEnabled',
+        on: settings.authorizationEnabled,
+        instructions: 'When disabled, Entry queries are not filtered. Control Panel requests always bypass filtering.'|t('super-content-access'),
+        warning: macros.configWarning('authorizationEnabled', 'super-content-access'),
+    }) }}
+{% endblock %}

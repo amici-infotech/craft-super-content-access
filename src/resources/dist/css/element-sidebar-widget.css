@@ -1,0 +1,103 @@
+/* Full-bleed band: extends past the meta pane padding to the panel edges,
+   then re-applies that padding internally so content aligns with native
+   sidebar fields. No inset card, no left/right gap. */
+.sca-summary {
+  margin-block: 10px;
+  margin-inline: var(--neg-padding, -24px);
+  padding: 12px var(--padding, 24px);
+  border-top: 1px solid var(--hairline-color, #cdd8e4);
+  border-bottom: 1px solid var(--hairline-color, #cdd8e4);
+  background: var(--gray-050, #f7fafc);
+}
+
+.sca-summary__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sca-summary__title {
+  flex: 1 1 auto;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-color, #3f4d5a);
+}
+
+.sca-summary__badge {
+  flex: 0 0 auto;
+  padding: 2px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.sca-summary__badge--public {
+  color: var(--green-600, #14884a);
+}
+
+.sca-summary__badge--restricted {
+  color: var(--orange-600, #cf7118);
+}
+
+.sca-summary__source {
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--hairline-color, #cdd8e4);
+  color: var(--medium-text-color, #9aa5b1);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.sca-summary__source a {
+  font-weight: 600;
+}
+
+.sca-summary__desc {
+  margin: 9px 0 0;
+  color: var(--medium-text-color, #606d7b);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.sca-summary__desc--alert {
+  color: var(--error-color, #cf1124);
+  font-weight: 600;
+}
+
+.sca-summary__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.sca-summary__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-color, #cdd8e4);
+  background: var(--white, #fff);
+  color: var(--text-color, #3f4d5a);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sca-summary__chip-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  color: var(--medium-text-color, #606d7b);
+}
