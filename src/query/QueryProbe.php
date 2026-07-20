@@ -1,4 +1,11 @@
 <?php
+/**
+ * Spike helper for seeding sample policies and probing EntryQuery constraints.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\query;
 
 use amici\SuperContentAccess\migrations\Install;
@@ -19,11 +26,20 @@ use yii\base\Event;
  * Spike helper: seed sample policies and apply experimental EntryQuery constraints.
  *
  * Not the production AuthorizationPipeline — only for console verification.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class QueryProbe extends Component
 {
     /**
-     * Builds an EntryQuery with optional section / limit filters.
+     * Builds an EntryQuery with optional section and limit filters.
+     *
+     * @param string|null $section Section handle filter, or null for all sections.
+     * @param int|null $limit Maximum number of entries to return.
+     *
+     * @return EntryQuery The configured entry query.
      */
     public function createEntryQuery(?string $section = null, ?int $limit = 20): EntryQuery
     {
@@ -45,8 +61,11 @@ class QueryProbe extends Component
      *
      * Returns a callable that detaches the listener.
      *
-     * @param int[] $groupIds
-     * @return callable(): void
+     * @param int|null $userId User ID for the synthetic context.
+     * @param int[] $groupIds Group IDs for the synthetic context.
+     * @param bool $isGuest Whether the synthetic context is a guest.
+     *
+     * @return callable(): void Callable that removes the listener.
      */
     public function attachConstraintListener(
         ?int $userId = null,
@@ -73,7 +92,12 @@ class QueryProbe extends Component
     /**
      * Injects production access constraints using a synthetic context.
      *
-     * @param int[] $groupIds
+     * @param EntryQuery $query Entry query to constrain.
+     * @param int|null $userId User ID for the synthetic context.
+     * @param int[] $groupIds Group IDs for the synthetic context.
+     * @param bool $isGuest Whether the synthetic context is a guest.
+     *
+     * @return void Nothing is returned.
      */
     public function applyAccessConstraint(
         EntryQuery $query,
@@ -97,7 +121,10 @@ class QueryProbe extends Component
      * - policy on the first matching entry (or --entryId)
      * - principal type=user for $userId (so only that user matches)
      *
-     * @return array{entryId: int, policyId: int, principalId: int, created: bool}
+     * @param int|null $entryId Entry ID to protect, or null for the first entry.
+     * @param int|null $userId User ID allowed by the seeded principal.
+     *
+     * @return array{entryId: int, policyId: int, principalId: int, created: bool} Seed result metadata.
      */
     public function seedSamplePolicy(?int $entryId = null, ?int $userId = 1): array
     {
@@ -171,6 +198,8 @@ class QueryProbe extends Component
 
     /**
      * Clears all seeded policy rows (spike helper).
+     *
+     * @return int Number of policy rows removed.
      */
     public function clearAllPolicies(): int
     {
@@ -182,6 +211,15 @@ class QueryProbe extends Component
         return $count;
     }
 
+    /**
+     * Inserts a principal row for a seeded policy.
+     *
+     * @param int $policyId Policy ID to attach the principal to.
+     * @param string $type Principal type handle.
+     * @param string $identifier Principal identifier.
+     *
+     * @return int The inserted principal ID.
+     */
     private function insertPrincipal(int $policyId, string $type, string $identifier): int
     {
         $db = Craft::$app->getDb();

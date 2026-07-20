@@ -1,4 +1,11 @@
 <?php
+/**
+ * Orchestrates principal resolution for a single Access Policy.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\authorization;
 
 use amici\SuperContentAccess\domain\AccessPolicy;
@@ -11,6 +18,10 @@ use Craft;
  * Orchestrates principal resolution for a single Access Policy.
  *
  * Fail closed: missing resolver or empty principals → deny.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class AuthorizationPipeline extends Component
 {
@@ -18,6 +29,11 @@ class AuthorizationPipeline extends Component
      * Whether the context is authorized for the given policy.
      *
      * No policy (null) means public content → allow.
+     *
+     * @param AccessPolicy|null $policy Policy to evaluate, or null for unrestricted content.
+     * @param AuthorizationContext $context Current authorization context.
+     *
+     * @return bool True when access is allowed.
      */
     public function authorize(?AccessPolicy $policy, AuthorizationContext $context): bool
     {

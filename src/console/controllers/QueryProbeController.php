@@ -1,4 +1,11 @@
 <?php
+/**
+ * Console command for probing EntryQuery authorization SQL.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\console\controllers;
 
 use amici\SuperContentAccess\Plugin;
@@ -17,22 +24,75 @@ use yii\helpers\Console;
  *   php craft super-content-access/query-probe --mode=baseline
  *   php craft super-content-access/query-probe --mode=constrained --userId=1
  *   php craft super-content-access/query-probe --clear
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class QueryProbeController extends Controller
 {
-    /** @var string baseline|constrained|both */
+    /**
+     * Probe mode: baseline, constrained, or both.
+     *
+     * @var string
+     */
     public string $mode = 'both';
 
+    /**
+     * Optional section handle filter.
+     *
+     * @var string|null
+     */
     public ?string $section = null;
+
+    /**
+     * User ID for the synthetic authorization context.
+     *
+     * @var int|null
+     */
     public ?int $userId = null;
+
+    /**
+     * Entry ID to seed a sample policy on.
+     *
+     * @var int|null
+     */
     public ?int $entryId = null;
+
+    /**
+     * Maximum number of entries to return in probe output.
+     *
+     * @var int
+     */
     public int $limit = 20;
+
+    /**
+     * Whether to seed a sample policy before probing.
+     *
+     * @var bool
+     */
     public bool $seed = false;
+
+    /**
+     * Whether to clear all policies before probing.
+     *
+     * @var bool
+     */
     public bool $clear = false;
+
+    /**
+     * Whether to run the probe as a guest.
+     *
+     * @var bool
+     */
     public bool $guest = false;
 
     /**
-     * @inheritdoc
+     * Returns console options supported by this controller.
+     *
+     * @param string $actionID Action ID being run.
+     *
+     * @return array Supported option names.
      */
     public function options($actionID): array
     {
@@ -49,7 +109,9 @@ class QueryProbeController extends Controller
     }
 
     /**
-     * @inheritdoc
+     * Returns short aliases for console options.
+     *
+     * @return array<string, string> Option aliases.
      */
     public function optionAliases(): array
     {
@@ -64,6 +126,8 @@ class QueryProbeController extends Controller
 
     /**
      * Runs baseline and/or constrained EntryQuery probes and prints SQL + results.
+     *
+     * @return int Console exit code.
      */
     public function actionIndex(): int
     {
@@ -81,6 +145,13 @@ class QueryProbeController extends Controller
         }
     }
 
+    /**
+     * Executes the probe workflow after optional seed/clear steps.
+     *
+     * @param \amici\SuperContentAccess\query\QueryProbe $probe Query probe service.
+     *
+     * @return int Console exit code.
+     */
     private function runProbeAction($probe): int
     {
         if ($this->clear) {
@@ -157,7 +228,14 @@ class QueryProbeController extends Controller
     }
 
     /**
-     * @param int[] $groupIds
+     * Runs one probe mode and prints SQL plus matching entries.
+     *
+     * @param string $mode Probe mode name.
+     * @param int|null $userId User ID for the synthetic context.
+     * @param int[] $groupIds Group IDs for the synthetic context.
+     * @param bool $isGuest Whether the synthetic context is a guest.
+     *
+     * @return void Nothing is returned.
      */
     private function runProbe(string $mode, ?int $userId, array $groupIds, bool $isGuest): void
     {

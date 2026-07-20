@@ -1,4 +1,11 @@
 <?php
+/**
+ * Install migration — creates access policy and principal tables.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\migrations;
 
 use craft\db\Migration;
@@ -6,14 +13,27 @@ use craft\db\Table;
 
 /**
  * Install migration — creates access policy and principal tables.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class Install extends Migration
 {
+    /**
+     * Access policies table name.
+     */
     public const TABLE_POLICIES = '{{%super_content_access_policies}}';
+
+    /**
+     * Policy principals table name.
+     */
     public const TABLE_PRINCIPALS = '{{%super_content_access_principals}}';
 
     /**
      * Creates plugin tables, indexes, and foreign keys.
+     *
+     * @return bool True when the migration completes successfully.
      */
     public function safeUp(): bool
     {
@@ -30,6 +50,8 @@ class Install extends Migration
 
     /**
      * Drops plugin tables.
+     *
+     * @return bool True when the migration completes successfully.
      */
     public function safeDown(): bool
     {
@@ -39,6 +61,11 @@ class Install extends Migration
         return true;
     }
 
+    /**
+     * Creates the access policy and principal tables.
+     *
+     * @return void Nothing is returned.
+     */
     protected function createTables(): void
     {
         $this->createTable(self::TABLE_POLICIES, [
@@ -61,6 +88,11 @@ class Install extends Migration
         ]);
     }
 
+    /**
+     * Creates indexes for policy and principal lookups.
+     *
+     * @return void Nothing is returned.
+     */
     protected function createIndexes(): void
     {
         $this->createIndex(null, self::TABLE_POLICIES, 'elementId', true);
@@ -70,6 +102,11 @@ class Install extends Migration
         $this->createIndex(null, self::TABLE_PRINCIPALS, ['policyId', 'type', 'identifier'], false);
     }
 
+    /**
+     * Adds foreign keys linking policies and principals to Craft tables.
+     *
+     * @return void Nothing is returned.
+     */
     protected function addForeignKeys(): void
     {
         $this->addForeignKey(

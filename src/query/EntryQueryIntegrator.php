@@ -1,4 +1,11 @@
 <?php
+/**
+ * Applies query-level authorization constraints to EntryQuery before SQL runs.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\query;
 
 use amici\SuperContentAccess\domain\AuthorizationContext;
@@ -20,14 +27,27 @@ use yii\db\Expression;
  * - Skip when the queried section(s) cannot be affected by any policy.
  * - Otherwise apply a single anti-join NOT EXISTS (deny-form) instead of
  *   multiple correlated EXISTS / NOT EXISTS branches.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class EntryQueryIntegrator extends Component
 {
+    /**
+     * @var bool Whether the beforePrepare listener has been registered.
+     */
     private bool $registered = false;
+
+    /**
+     * @var bool Whether query integration is currently enabled.
+     */
     private bool $enabled = true;
 
     /**
      * Request-scoped memo: null = unknown, true/false = known.
+     *
+     * @var bool|null
      */
     private ?bool $hasAnyPolicies = null;
 
@@ -40,11 +60,15 @@ class EntryQueryIntegrator extends Component
 
     /**
      * Request-scoped memo: whether any element-scoped policies exist.
+     *
+     * @var bool|null
      */
     private ?bool $hasElementPolicies = null;
 
     /**
-     * Register the global beforePrepare listener.
+     * Registers the global beforePrepare listener.
+     *
+     * @return void Nothing is returned.
      */
     public function register(): void
     {
@@ -61,16 +85,31 @@ class EntryQueryIntegrator extends Component
         $this->registered = true;
     }
 
+    /**
+     * Enables query-level authorization integration.
+     *
+     * @return void Nothing is returned.
+     */
     public function enable(): void
     {
         $this->enabled = true;
     }
 
+    /**
+     * Disables query-level authorization integration.
+     *
+     * @return void Nothing is returned.
+     */
     public function disable(): void
     {
         $this->enabled = false;
     }
 
+    /**
+     * Whether query-level authorization integration is enabled.
+     *
+     * @return bool True when integration is active.
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
@@ -78,6 +117,8 @@ class EntryQueryIntegrator extends Component
 
     /**
      * Clears request-scoped policy presence memos (used by probes / tests).
+     *
+     * @return void Nothing is returned.
      */
     public function resetMemo(): void
     {
@@ -86,6 +127,13 @@ class EntryQueryIntegrator extends Component
         $this->hasElementPolicies = null;
     }
 
+    /**
+     * Applies access constraints before an entry query is prepared.
+     *
+     * @param Event $event The beforePrepare event.
+     *
+     * @return void Nothing is returned.
+     */
     public function handleBeforePrepare(Event $event): void
     {
         if (!$this->enabled) {
@@ -125,13 +173,18 @@ class EntryQueryIntegrator extends Component
     }
 
     /**
-     * Apply the production access SQL for a given context (also used by probe).
+     * Applies the production access SQL for a given context (also used by probe).
      *
      * An entry is denied when the effective policy (entry, else channel) exists
      * but has no principal matching the current context. Otherwise it is shown.
      *
      * Implemented as one correlated NOT EXISTS anti-join so MySQL/Postgres can
      * short-circuit instead of evaluating several independent EXISTS branches.
+     *
+     * @param EntryQuery $query Entry query to constrain.
+     * @param AuthorizationContext $context Current authorization context.
+     *
+     * @return void Nothing is returned.
      */
     public function applyAccessConstraint(EntryQuery $query, AuthorizationContext $context): void
     {
@@ -171,9 +224,8 @@ class EntryQueryIntegrator extends Component
 
     /**
      * Whether any access policies exist (request-memoized).
-     */
-    /**
-     * Whether any access policies exist (request-memoized).
+     *
+     * @return bool True when at least one policy exists.
      */
     private function hasAnyPolicies(): bool
     {
@@ -184,6 +236,8 @@ class EntryQueryIntegrator extends Component
 
     /**
      * Whether any element-scoped policies exist (request-memoized).
+     *
+     * @return bool True when at least one element policy exists.
      */
     private function hasElementPolicies(): bool
     {
@@ -194,6 +248,8 @@ class EntryQueryIntegrator extends Component
 
     /**
      * Loads both presence flags in a single EXISTS round-trip.
+     *
+     * @return void Nothing is returned.
      */
     private function hydratePresenceFlags(): void
     {
@@ -207,9 +263,9 @@ class EntryQueryIntegrator extends Component
     }
 
     /**
-     * Section IDs that currently have a channel default policy.
+     * Returns section IDs that currently have a channel default policy.
      *
-     * @return int[]
+     * @return int[] Restricted section IDs.
      */
     private function restrictedSectionIds(): array
     {
@@ -226,7 +282,11 @@ class EntryQueryIntegrator extends Component
     }
 
     /**
-     * True when this EntryQuery cannot hit any protected content.
+     * Whether this EntryQuery cannot hit any protected content.
+     *
+     * @param EntryQuery $query Entry query being prepared.
+     *
+     * @return bool True when authorization can be skipped.
      */
     private function canSkipForQuery(EntryQuery $query): bool
     {
@@ -261,6 +321,8 @@ class EntryQueryIntegrator extends Component
     }
 
     /**
+     * Normalizes an EntryQuery section filter into integer IDs.
+     *
      * @param mixed $sectionId EntryQuery::$sectionId value.
      *
      * @return int[]|null Normalized IDs, or null when the query is not section-limited.
@@ -286,7 +348,7 @@ class EntryQueryIntegrator extends Component
     }
 
     /**
-     * Build OR conditions for principals that match the current context.
+     * Builds OR conditions for principals that match the current context.
      *
      * @param AuthorizationContext $context Current request context.
      * @param string $alias Principals table alias to match against.

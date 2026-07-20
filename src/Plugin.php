@@ -33,6 +33,12 @@ use craft\web\UrlManager;
 use yii\base\Event;
 
 /**
+ * Super Content Access Plugin
+ *
+ * @author    Amici Infotech
+ * @package   SuperContentAccess
+ * @since     5.0.0
+ *
  * @property Settings $settings
  * @method Settings getSettings()
  */
@@ -40,15 +46,35 @@ class Plugin extends CraftPlugin
 {
     use PluginTrait;
 
+    /**
+     * @var Plugin|null Singleton plugin instance.
+     */
     public static ?Plugin $plugin = null;
+
+    /**
+     * @var string Plugin handle used in routes and config.
+     */
     public static string $pluginHandle = 'super-content-access';
 
+    /**
+     * @var string Database schema version.
+     */
     public string $schemaVersion = '5.0.4';
+
+    /**
+     * @var bool Whether the plugin exposes CP settings.
+     */
     public bool $hasCpSettings = true;
+
+    /**
+     * @var bool Whether the plugin exposes a CP section.
+     */
     public bool $hasCpSection = true;
 
     /**
      * Initializes the plugin and registers components, routes, and query integration.
+     *
+     * @return void Nothing is returned.
      */
     public function init(): void
     {
@@ -73,16 +99,31 @@ class Plugin extends CraftPlugin
         );
     }
 
+    /**
+     * Creates the plugin settings model.
+     *
+     * @return Settings|null The settings model instance.
+     */
     protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
 
+    /**
+     * Redirects CP settings requests to the plugin settings screen.
+     *
+     * @return mixed The HTTP redirect response.
+     */
     public function getSettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('super-content-access/settings'));
     }
 
+    /**
+     * Builds the Control Panel nav item with subnav links.
+     *
+     * @return array|null Nav item configuration, or null when hidden.
+     */
     public function getCpNavItem(): ?array
     {
         $item = parent::getCpNavItem();
@@ -104,11 +145,21 @@ class Plugin extends CraftPlugin
         return $item;
     }
 
+    /**
+     * Returns the path to the CP nav icon mask SVG.
+     *
+     * @return string|null Absolute path to the icon file.
+     */
     protected function cpNavIconPath(): ?string
     {
         return $this->getBasePath() . DIRECTORY_SEPARATOR . 'icon-mask.svg';
     }
 
+    /**
+     * Registers the Access Control field type with Craft.
+     *
+     * @return void Nothing is returned.
+     */
     private function _registerFieldType(): void
     {
         Event::on(
@@ -120,6 +171,11 @@ class Plugin extends CraftPlugin
         );
     }
 
+    /**
+     * Registers dashboard widget types with Craft.
+     *
+     * @return void Nothing is returned.
+     */
     private function _registerDashboardWidgets(): void
     {
         Event::on(
@@ -132,6 +188,11 @@ class Plugin extends CraftPlugin
         );
     }
 
+    /**
+     * Appends the read-only access summary to entry editor sidebars.
+     *
+     * @return void Nothing is returned.
+     */
     private function _registerElementSidebarWidget(): void
     {
         Event::on(
@@ -154,6 +215,11 @@ class Plugin extends CraftPlugin
         );
     }
 
+    /**
+     * Registers Control Panel URL rules for the plugin section.
+     *
+     * @return void Nothing is returned.
+     */
     private function _registerCpRoutes(): void
     {
         Event::on(
@@ -169,6 +235,11 @@ class Plugin extends CraftPlugin
         );
     }
 
+    /**
+     * Registers user permissions for managing access policies.
+     *
+     * @return void Nothing is returned.
+     */
     private function _registerPermissions(): void
     {
         Event::on(

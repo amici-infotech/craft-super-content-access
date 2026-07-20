@@ -1,4 +1,11 @@
 <?php
+/**
+ * Maps principal types to resolvers for authorization evaluation.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\authorization;
 
 use amici\SuperContentAccess\authorization\resolvers\GroupResolver;
@@ -10,25 +17,51 @@ use craft\base\Component;
 
 /**
  * Maps principal types to resolvers. Missing resolver = fail closed.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class ResolverRegistry extends Component
 {
     /** @var array<string, PrincipalResolverInterface> */
     private array $resolvers = [];
 
+    /**
+     * @var bool Whether default resolvers have been registered.
+     */
     private bool $initialized = false;
 
+    /**
+     * Registers default resolvers when the component initializes.
+     *
+     * @return void Nothing is returned.
+     */
     public function init(): void
     {
         parent::init();
         $this->registerDefaults();
     }
 
+    /**
+     * Registers a principal resolver for its type handle.
+     *
+     * @param PrincipalResolverInterface $resolver Resolver to register.
+     *
+     * @return void Nothing is returned.
+     */
     public function register(PrincipalResolverInterface $resolver): void
     {
         $this->resolvers[$resolver->getType()] = $resolver;
     }
 
+    /**
+     * Returns the resolver for a principal type, if registered.
+     *
+     * @param string $principalType Principal type handle.
+     *
+     * @return PrincipalResolverInterface|null The resolver, or null when missing.
+     */
     public function get(string $principalType): ?PrincipalResolverInterface
     {
         $this->ensureInitialized();
@@ -37,7 +70,9 @@ class ResolverRegistry extends Component
     }
 
     /**
-     * @return PrincipalResolverInterface[]
+     * Returns all registered resolvers.
+     *
+     * @return PrincipalResolverInterface[] Registered resolvers.
      */
     public function all(): array
     {
@@ -46,6 +81,11 @@ class ResolverRegistry extends Component
         return array_values($this->resolvers);
     }
 
+    /**
+     * Registers the built-in user, group, guest, and public resolvers.
+     *
+     * @return void Nothing is returned.
+     */
     private function registerDefaults(): void
     {
         if ($this->initialized) {
@@ -59,6 +99,11 @@ class ResolverRegistry extends Component
         $this->initialized = true;
     }
 
+    /**
+     * Ensures default resolvers are registered before lookup.
+     *
+     * @return void Nothing is returned.
+     */
     private function ensureInitialized(): void
     {
         if (!$this->initialized) {

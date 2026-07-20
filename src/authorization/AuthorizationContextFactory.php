@@ -1,4 +1,11 @@
 <?php
+/**
+ * Builds immutable AuthorizationContext snapshots for the current request.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\authorization;
 
 use amici\SuperContentAccess\domain\AuthorizationContext;
@@ -8,11 +15,23 @@ use craft\elements\User;
 
 /**
  * Builds an immutable AuthorizationContext for the current request.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class AuthorizationContextFactory extends Component
 {
+    /**
+     * @var AuthorizationContext|null Request-scoped cached context.
+     */
     private ?AuthorizationContext $cached = null;
 
+    /**
+     * Creates or returns the cached authorization context for the current request.
+     *
+     * @return AuthorizationContext The request authorization context.
+     */
     public function create(): AuthorizationContext
     {
         if ($this->cached !== null) {
@@ -61,9 +80,15 @@ class AuthorizationContextFactory extends Component
     }
 
     /**
-     * Build a synthetic context (console probes / tests).
+     * Builds a synthetic context for console probes and tests.
      *
-     * @param int[] $groupIds
+     * @param int|null $userId User ID, or null for guests.
+     * @param int[] $groupIds Group IDs the user belongs to.
+     * @param bool $isGuest Whether the visitor is unauthenticated.
+     * @param bool $isCpRequest Whether the context represents a CP request.
+     * @param int|null $siteId Optional site ID.
+     *
+     * @return AuthorizationContext The constructed context.
      */
     public function createFromParams(
         ?int $userId = null,
@@ -87,7 +112,9 @@ class AuthorizationContextFactory extends Component
     }
 
     /**
-     * Reset request cache (tests / console re-runs).
+     * Clears the request-scoped context cache.
+     *
+     * @return void Nothing is returned.
      */
     public function reset(): void
     {

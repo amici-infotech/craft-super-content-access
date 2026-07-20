@@ -1,11 +1,29 @@
 <?php
+/**
+ * Value object representing one authorization target within an Access Policy.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\domain;
 
 /**
  * A single authorization target within an Access Policy.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 final class PolicyPrincipal
 {
+    /**
+     * Creates a policy principal value object.
+     *
+     * @param string $type Principal type handle (user, group, guest, public).
+     * @param string $identifier Type-specific identifier (user ID, group ID, or wildcard).
+     * @param int|null $id Database record ID when loaded from storage.
+     */
     public function __construct(
         public readonly string $type,
         public readonly string $identifier,
@@ -14,7 +32,11 @@ final class PolicyPrincipal
     }
 
     /**
-     * @param array{type: string, identifier: string, id?: int|null} $data
+     * Builds a principal from a serialized array.
+     *
+     * @param array{type: string, identifier: string, id?: int|null} $data Serialized principal data.
+     *
+     * @return self The constructed principal.
      */
     public static function fromArray(array $data): self
     {
@@ -26,7 +48,9 @@ final class PolicyPrincipal
     }
 
     /**
-     * @return array{type: string, identifier: string, id: int|null}
+     * Serializes the principal to an array.
+     *
+     * @return array{type: string, identifier: string, id: int|null} Serialized principal data.
      */
     public function toArray(): array
     {

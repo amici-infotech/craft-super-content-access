@@ -1,4 +1,11 @@
 <?php
+/**
+ * Removes the deprecated field-based Access Control implementation.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\migrations;
 
 use Craft;
@@ -6,11 +13,23 @@ use craft\db\Migration;
 
 /**
  * Removes the deprecated field-based Access Control implementation.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class m260714_150000_remove_access_control_field extends Migration
 {
+    /**
+     * Deprecated Access Control field class name.
+     */
     private const FIELD_TYPE = 'amici\\SuperContentAccess\\fields\\AccessControlField';
 
+    /**
+     * Deletes deprecated Access Control field instances from Craft.
+     *
+     * @return bool True when the migration completes successfully.
+     */
     public function safeUp(): bool
     {
         $fields = (new \craft\db\Query())
@@ -35,6 +54,11 @@ class m260714_150000_remove_access_control_field extends Migration
         return true;
     }
 
+    /**
+     * The deprecated field cannot be restored automatically.
+     *
+     * @return bool True when the migration completes successfully.
+     */
     public function safeDown(): bool
     {
         echo "The deprecated Access Control field cannot be restored.\n";

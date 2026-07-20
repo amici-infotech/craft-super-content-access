@@ -1,4 +1,11 @@
 <?php
+/**
+ * Plugin settings controller for Super Content Access.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\controllers;
 
 use amici\SuperContentAccess\Plugin;
@@ -8,15 +15,31 @@ use yii\web\Response;
 
 /**
  * Plugin settings controller.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class SettingsController extends Controller
 {
+    /**
+     * Restricts settings actions to Craft admins.
+     *
+     * @param mixed $action Action being run.
+     *
+     * @return bool Whether the action may run.
+     */
     public function beforeAction($action): bool
     {
         $this->requireAdmin();
         return parent::beforeAction($action);
     }
 
+    /**
+     * Renders the plugin settings screen.
+     *
+     * @return Response Rendered settings page.
+     */
     public function actionIndex(): Response
     {
         $plugin = Plugin::getInstance();
@@ -27,6 +50,11 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * Saves plugin settings from a POST request.
+     *
+     * @return Response|null Success response, or null on validation failure.
+     */
     public function actionSave(): ?Response
     {
         $this->requirePostRequest();

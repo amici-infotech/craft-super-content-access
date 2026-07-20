@@ -1,4 +1,11 @@
 <?php
+/**
+ * Persistence mapping between AccessPolicy domain objects and database records.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\repositories;
 
 use amici\SuperContentAccess\domain\AccessPolicy;
@@ -14,9 +21,20 @@ use yii\base\Component;
 
 /**
  * Persistence mapping between AccessPolicy domain objects and DB records.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class PolicyRepository extends Component
 {
+    /**
+     * Loads the access policy for an element ID.
+     *
+     * @param int $elementId Element ID to look up.
+     *
+     * @return AccessPolicy|null The policy, or null when none exists.
+     */
     public function findByElementId(int $elementId): ?AccessPolicy
     {
         /** @var AccessPolicyRecord|null $record */
@@ -32,6 +50,13 @@ class PolicyRepository extends Component
         return $this->toDomain($record);
     }
 
+    /**
+     * Whether an element-scoped policy exists for the given element ID.
+     *
+     * @param int $elementId Element ID to check.
+     *
+     * @return bool True when a policy exists.
+     */
     public function existsForElementId(int $elementId): bool
     {
         return AccessPolicyRecord::find()
@@ -40,7 +65,12 @@ class PolicyRepository extends Component
     }
 
     /**
-     * @param PolicyPrincipal[] $principals
+     * Persists principals for an element-scoped policy.
+     *
+     * @param int $elementId Element ID to protect.
+     * @param PolicyPrincipal[] $principals Principals to save.
+     *
+     * @return AccessPolicy The saved policy.
      */
     public function save(int $elementId, array $principals): AccessPolicy
     {
@@ -100,6 +130,13 @@ class PolicyRepository extends Component
         return $saved;
     }
 
+    /**
+     * Deletes the element-scoped policy for an element ID.
+     *
+     * @param int $elementId Element ID whose policy should be removed.
+     *
+     * @return bool True when a policy was deleted.
+     */
     public function deleteByElementId(int $elementId): bool
     {
         /** @var AccessPolicyRecord|null $record */
@@ -226,7 +263,9 @@ class PolicyRepository extends Component
     }
 
     /**
-     * Fast existence check used by diagnostics / probes.
+     * Counts all access policy rows.
+     *
+     * @return int Total policy count.
      */
     public function countPolicies(): int
     {
@@ -263,12 +302,12 @@ class PolicyRepository extends Component
     }
 
     /**
-     * Cheap presence flags for the query fast-path.
+     * Returns cheap presence flags for the query fast-path.
      *
      * Uses EXISTS (LIMIT 1) so cost stays flat even when many policies exist.
      * Short-circuits the element check when no policies exist at all.
      *
-     * @return array{any: bool, element: bool}
+     * @return array{any: bool, element: bool} Policy presence flags.
      */
     public function presenceFlags(): array
     {
@@ -334,6 +373,13 @@ class PolicyRepository extends Component
         ];
     }
 
+    /**
+     * Maps a database record to a domain AccessPolicy object.
+     *
+     * @param AccessPolicyRecord $record Policy record to convert.
+     *
+     * @return AccessPolicy The domain policy object.
+     */
     private function toDomain(AccessPolicyRecord $record): AccessPolicy
     {
         $principals = [];

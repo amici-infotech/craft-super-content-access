@@ -1,43 +1,61 @@
-# Super Content Access
+# Super Content Access for Craft CMS 5
 
-Element-level authorization for Craft CMS 5 with query-level access control.
+Super Content Access is an authorization plugin for Craft CMS. It lets you restrict which entries visitors can see, using query-level filtering so unauthorized content never leaves the database.
+
+Editors manage access from an **Access Control** field and see the effective policy in the entry sidebar. Administrators can also set **channel-wide defaults** under General Access.
+
+## Features
+
+- Restrict entry visibility to user groups and/or specific users.
+- Query-level authorization on `craft.entries` (Twig, PHP, GraphQL consumers of Entry queries).
+- Channel (section) default policies with entry-level overrides.
+- Read-only entry sidebar summary showing effective access (entry policy, else channel default).
+- Craft dashboard widgets for access overview and breakdown charts.
+- Plugin settings with `config/super-content-access.php` overrides.
+- Console query probe for verifying SQL constraints.
 
 ## Requirements
 
-- Craft CMS 5.x
-- PHP 8.2+
+- Craft CMS 5
+- PHP 8.2 or newer
 
-## Install
+## Installation
 
 ```bash
 composer require amici/craft-super-content-access
 php craft plugin/install super-content-access
 ```
 
-## Setup
+You can also install it from **Settings → Plugins** in the Craft Control Panel.
 
-1. Open an entry in the Craft Control Panel
-2. Use the **Super Content Access** sidebar widget
-3. Choose **Restrict Access** / **Manage Policy**
-4. Save the policy audiences
-5. Front-end / GraphQL / Twig Entry queries are filtered automatically
-6. Control Panel requests always bypass filtering
+For the full setup flow, see the [documentation](docs/README.md).
 
-## Principals (v1)
+## Documentation
 
-- User
-- User group
-- Guest (logged-out)
-- Public (everyone)
+- [Documentation Home](docs/README.md)
+- [Installation and Setup](docs/installation.md)
+- [Core Concepts](docs/concepts.md)
+- [Backend Guide](docs/backend.md)
+- [Twig / Front-End Behaviour](docs/twig-usage.md)
+- [PHP API](docs/php-api.md)
+- [Console Probe](docs/console.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
-## Console probe
+## Control Panel
 
-```bash
-php craft super-content-access/query-probe --seed=1 --entryId=276 --userId=1
-php craft super-content-access/query-probe --guest=1 --limit=10
-php craft super-content-access/query-probe --clear
-```
+The plugin adds a **Super Content Access** section with:
 
-## Architecture
+- **General Access** — channel default policies.
+- **Settings** — plugin name and authorization toggle.
 
-See [`README-AI.md`](README-AI.md) and [`research/`](research/).
+On entries, add the **Access Control** field to a field layout to edit per-entry rules. The sidebar shows a read-only summary of effective access.
+
+## Permissions
+
+- `super-content-access:manage-policies` — manage General Access channel policies.
+
+Plugin **Settings** require a Craft admin.
+
+## License
+
+Proprietary - Copyright (c) 2026 Amici Infotech

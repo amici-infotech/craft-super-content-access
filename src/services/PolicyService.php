@@ -1,4 +1,11 @@
 <?php
+/**
+ * Application service for Access Policy CRUD and validation.
+ *
+ * @link      https://amiciinfotech.com
+ * @copyright Copyright (c) 2026 Amici Infotech
+ */
+
 namespace amici\SuperContentAccess\services;
 
 use amici\SuperContentAccess\domain\AccessPolicy;
@@ -17,14 +24,40 @@ use yii\base\InvalidArgumentException;
 
 /**
  * Application service for Access Policy CRUD and validation.
+ *
+ * @author  Amici Infotech
+ * @package SuperContentAccess
+ * @since   5.0.0
  */
 class PolicyService extends Component implements PolicyServiceInterface
 {
+    /**
+     * Event fired before an access policy is saved.
+     */
     public const EVENT_BEFORE_SAVE_POLICY = 'beforeSavePolicy';
+
+    /**
+     * Event fired after an access policy is saved.
+     */
     public const EVENT_AFTER_SAVE_POLICY = 'afterSavePolicy';
+
+    /**
+     * Event fired before an access policy is deleted.
+     */
     public const EVENT_BEFORE_DELETE_POLICY = 'beforeDeletePolicy';
+
+    /**
+     * Event fired after an access policy is deleted.
+     */
     public const EVENT_AFTER_DELETE_POLICY = 'afterDeletePolicy';
 
+    /**
+     * Loads the access policy for an element.
+     *
+     * @param ElementInterface $element Element to look up.
+     *
+     * @return AccessPolicy|null The policy, or null when none exists.
+     */
     public function getForElement(ElementInterface $element): ?AccessPolicy
     {
         if ($element->id === null) {
@@ -34,13 +67,25 @@ class PolicyService extends Component implements PolicyServiceInterface
         return $this->getForElementId((int)$element->id);
     }
 
+    /**
+     * Loads the access policy for an element ID.
+     *
+     * @param int $elementId Element ID to look up.
+     *
+     * @return AccessPolicy|null The policy, or null when none exists.
+     */
     public function getForElementId(int $elementId): ?AccessPolicy
     {
         return $this->repository()->findByElementId($elementId);
     }
 
     /**
-     * @param PolicyPrincipal[] $principals
+     * Persists principals for an element.
+     *
+     * @param int $elementId Element ID to protect.
+     * @param PolicyPrincipal[] $principals Principals to save.
+     *
+     * @return AccessPolicy The saved policy.
      */
     public function saveForElement(int $elementId, array $principals): AccessPolicy
     {
@@ -61,6 +106,13 @@ class PolicyService extends Component implements PolicyServiceInterface
         return $policy;
     }
 
+    /**
+     * Deletes the access policy for an element.
+     *
+     * @param int $elementId Element ID whose policy should be removed.
+     *
+     * @return bool True when a policy was deleted.
+     */
     public function deleteForElement(int $elementId): bool
     {
         $event = new CancelableEvent(['sender' => $this]);
@@ -125,9 +177,11 @@ class PolicyService extends Component implements PolicyServiceInterface
     }
 
     /**
-     * Parse posted Access Control field data into principals.
+     * Parses posted Access Control field data into principals.
      *
-     * @return PolicyPrincipal[]|null null when input is absent
+     * @param mixed $input Raw posted field data.
+     *
+     * @return PolicyPrincipal[]|null Parsed principals, or null when input is absent.
      */
     public function principalsFromInput(mixed $input): ?array
     {
@@ -179,7 +233,13 @@ class PolicyService extends Component implements PolicyServiceInterface
     }
 
     /**
-     * @param PolicyPrincipal[] $principals
+     * Validates that principals are well-formed and reference existing users/groups.
+     *
+     * @param PolicyPrincipal[] $principals Principals to validate.
+     *
+     * @return void Nothing is returned.
+     *
+     * @throws InvalidArgumentException When a principal is invalid.
      */
     public function validatePrincipals(array $principals): void
     {
@@ -220,6 +280,11 @@ class PolicyService extends Component implements PolicyServiceInterface
         }
     }
 
+    /**
+     * Returns the policy repository used for persistence.
+     *
+     * @return PolicyRepository The policy repository instance.
+     */
     private function repository(): PolicyRepository
     {
         return Plugin::getInstance()->getPolicyRepository();
