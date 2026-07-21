@@ -30,7 +30,7 @@ Drafts: submitted values persist against the **canonical** element ID.
 The meta sidebar shows a read-only **Access** band for entries, categories, and products:
 
 - Badge: **Public** or **Members only**.
-- Source note: set on this element, inherited from a structure parent entry, or inherited from the matching General Access default (with link).
+- Source note: set on this element, inherited from a structure parent, or inherited from the matching General Access default (with link).
 - Audience chips for groups and users when restricted.
 
 The sidebar does not edit policies. Use the Access Control field (or General Access for defaults).
@@ -53,12 +53,22 @@ Sidebar scopes:
 
 Lists every Craft **channel** and **structure** section. Click a section to set its default policy. Choosing Everyone removes the section-scoped policy.
 
-For structure entries, effective access is:
+For structure entries, categories, and structured Commerce products, effective access is:
 
-1. Access Control on the entry itself
-2. Else nearest parent (or ancestor) entry that has Access Control set
-3. Else this section’s General Access default
+1. Access Control on the element itself
+2. Else nearest parent (or ancestor) that has Access Control set
+3. Else the matching General Access default (section / category group / product type)
 4. Else public
+
+Channel and single entries, and flat (non-structure) product types, skip step 2.
+
+### Sections
+
+```text
+/admin/super-content-access/access/channels
+```
+
+Lists every Craft **channel** and **structure** section. Click a section to set its default policy. Choosing Everyone removes the section-scoped policy.
 
 Singles are not listed — configure access on the single entry.
 
@@ -68,7 +78,7 @@ Singles are not listed — configure access on the single entry.
 /admin/super-content-access/access/categories
 ```
 
-Same editor pattern for each category group.
+Same editor pattern for each category group. Nested categories inherit from parents before the group default.
 
 ### Product types
 
@@ -76,7 +86,7 @@ Same editor pattern for each category group.
 /admin/super-content-access/access/products
 ```
 
-Same editor pattern for each Commerce product type.
+Same editor pattern for each Commerce product type. When the type is structured, nested products inherit from parents before the type default.
 
 Requires `super-content-access:manage-policies`.
 

@@ -89,15 +89,13 @@ class ElementSidebarWidget extends Component
             $restricted = true;
             $source = 'element';
         } else {
-            if ($element instanceof Entry) {
-                $ancestor = StructurePolicyHelper::nearestAncestorPolicy($elementId);
-            }
+            $ancestor = StructurePolicyHelper::nearestAncestorPolicy($elementId);
 
             if ($ancestor !== null) {
                 $principals = $ancestor['policy']->principals;
                 $restricted = true;
                 $source = 'parent';
-                $scope = $this->parentScope($ancestor['ancestorId']);
+                $scope = $this->parentScope($ancestor['ancestorId'], $element);
             } else {
                 $scope = $this->resolveScope($element, $policies);
                 if ($scope !== null) {
@@ -137,18 +135,22 @@ class ElementSidebarWidget extends Component
     }
 
     /**
-     * Builds sidebar scope details for an inherited parent entry policy.
+     * Builds sidebar scope details for an inherited parent element policy.
      *
-     * @param int $ancestorId Ancestor entry element ID.
+     * @param int $ancestorId Ancestor element ID.
+     * @param ElementInterface $element Element being edited (for label wording).
      *
      * @return array{principals: PolicyPrincipal[], source: string, name: string, url: string|null, kind: string}
      */
-    private function parentScope(int $ancestorId): array
+    private function parentScope(int $ancestorId, ElementInterface $element): array
     {
-        $ancestor = StructurePolicyHelper::ancestorEntry($ancestorId);
+        $ancestor = StructurePolicyHelper::ancestorElement($ancestorId);
+        $elementLabel = $this->elementLabel($element);
         $name = $ancestor !== null
             ? (string)$ancestor
-            : Craft::t('super-content-access', 'Parent entry');
+            : Craft::t('super-content-access', 'Parent {element}', [
+                'element' => $elementLabel,
+            ]);
 
         $url = null;
         if ($ancestor !== null && $ancestor->getCpEditUrl()) {
@@ -160,7 +162,9 @@ class ElementSidebarWidget extends Component
             'source' => 'parent',
             'name' => $name,
             'url' => $url,
-            'kind' => Craft::t('super-content-access', 'parent entry'),
+            'kind' => Craft::t('super-content-access', 'parent {element}', [
+                'element' => $elementLabel,
+            ]),
         ];
     }
 

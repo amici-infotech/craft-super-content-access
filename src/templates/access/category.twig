@@ -28,7 +28,7 @@
     </div>
 
     <p class="sca-intro">
-        {{ 'Choose who can view categories in this group by default. Individual categories can override this with their own Access Control field.'|t('super-content-access') }}
+        {{ 'Choose who can view categories in this group by default. Individual categories override this. Nested categories without their own rules inherit from the nearest parent that has Access Control set, then fall back to this default.'|t('super-content-access') }}
     </p>
 
     {% include 'super-content-access/_includes/policy-editor' with {

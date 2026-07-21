@@ -11,7 +11,7 @@
 ## Scope Default Not Applying
 
 1. Open **General Access** (Sections / Categories / Products) and confirm the scope shows **Members only**.
-2. Element-level policies override scope defaults. Set the Access Control field to **Everyone** to inherit the default (for structures, a parent entry policy still wins before the section default).
+2. Element-level policies override scope defaults. Set the Access Control field to **Everyone** to inherit the default (for nested structure entries, categories, and structured products, a parent element policy still wins before the scope default).
 3. Channels and structures appear under **Sections**. Singles do not — set access on the single entry. Category groups and Commerce product types appear under their own tabs.
 
 ## Admin / Author Bypass Surprises

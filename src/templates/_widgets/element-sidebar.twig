@@ -21,15 +21,19 @@
     {% if source == 'parent' %}
         <p class="sca-summary__source">
             {% if scopeUrl and scopeName %}
-                {{ 'Inherited from parent entry {scope}.'|t('super-content-access', {
+                {{ 'Inherited from parent {element} {scope}.'|t('super-content-access', {
+                    element: elementLabel,
                     scope: '<a href="' ~ scopeUrl ~ '">' ~ scopeName ~ '</a>',
                 })|raw }}
             {% elseif scopeName %}
-                {{ 'Inherited from parent entry {scope}.'|t('super-content-access', {
+                {{ 'Inherited from parent {element} {scope}.'|t('super-content-access', {
+                    element: elementLabel,
                     scope: scopeName,
                 }) }}
             {% else %}
-                {{ 'Inherited from a parent entry.'|t('super-content-access') }}
+                {{ 'Inherited from a parent {element}.'|t('super-content-access', {
+                    element: elementLabel,
+                }) }}
             {% endif %}
             {{ 'Set this {element}’s Access Control field to override it.'|t('super-content-access', {
                 element: elementLabel,

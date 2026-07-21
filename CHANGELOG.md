@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - Access Control field for editing element policies (stored in plugin tables, not Craft content).
 - Read-only element sidebar summary with effective access (element policy, structure parent inheritance, or scope default).
 - General Access Control Panel screens for channel/structure section, category-group, and product-type defaults.
-- Structure entry inheritance: own policy → nearest parent/ancestor element policy → section General Access default → public.
+- Structure / category / product inheritance: own policy → nearest parent/ancestor element policy → scope General Access default → public.
 - Shared policy editor for the Access Control field and General Access screens.
 - Plugin settings (`pluginName`, `authorizationEnabled`, `adminAlwaysAccess`, `authorAlwaysAccess`) with config-file override warnings.
 - Settings remain viewable when `allowAdminChanges` is false (read-only).

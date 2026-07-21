@@ -221,25 +221,16 @@ class ElementQueryIntegrator extends Component
         $applies = [
             'or',
             '[[p.elementId]] = [[elements.id]]',
+            // …or the nearest structure-parent element policy…
+            StructurePolicyHelper::nearestAncestorPolicyAppliesCondition(),
+            // …or the scope default when no element / ancestor element policy wins.
+            [
+                'and',
+                "[[p.{$scopeColumn}]] = [[{$scopeTableColumn}]]",
+                StructurePolicyHelper::noOwnElementPolicyCondition(),
+                StructurePolicyHelper::noAncestorElementPolicyCondition(),
+            ],
         ];
-
-        // …or (entries only) the nearest structure-parent element policy…
-        if ($config['elementType'] === Entry::class) {
-            $applies[] = StructurePolicyHelper::nearestAncestorPolicyAppliesCondition();
-        }
-
-        // …or the scope default when no element / ancestor element policy wins.
-        $scopeApplies = [
-            'and',
-            "[[p.{$scopeColumn}]] = [[{$scopeTableColumn}]]",
-            StructurePolicyHelper::noOwnElementPolicyCondition(),
-        ];
-
-        if ($config['elementType'] === Entry::class) {
-            $scopeApplies[] = StructurePolicyHelper::noAncestorElementPolicyCondition();
-        }
-
-        $applies[] = $scopeApplies;
 
         $blockingPolicy = (new Query())
             ->select(new Expression('1'))

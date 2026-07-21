@@ -101,12 +101,10 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
             return $pipeline->authorize($policy, $context);
         }
 
-        // Structure entries: inherit from the nearest parent with an element policy.
-        if ($element instanceof Entry || ($element === null && $this->isElementType($elementId, Entry::class))) {
-            $ancestor = StructurePolicyHelper::nearestAncestorPolicy($elementId);
-            if ($ancestor !== null) {
-                return $pipeline->authorize($ancestor['policy'], $context);
-            }
+        // Structured elements: inherit from the nearest parent with an element policy.
+        $ancestor = StructurePolicyHelper::nearestAncestorPolicy($elementId);
+        if ($ancestor !== null) {
+            return $pipeline->authorize($ancestor['policy'], $context);
         }
 
         $principals = $this->defaultPrincipalsFor($elementId, $element);

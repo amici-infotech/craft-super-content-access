@@ -1,6 +1,6 @@
 <?php
 /**
- * Structure ancestry helpers for inherited entry access policies.
+ * Structure ancestry helpers for inherited element access policies.
  *
  * @link      https://amiciinfotech.com
  * @copyright Copyright (c) 2026 Amici Infotech
@@ -11,16 +11,17 @@ namespace amici\SuperContentAccess\helpers;
 use amici\SuperContentAccess\domain\AccessPolicy;
 use amici\SuperContentAccess\migrations\Install;
 use amici\SuperContentAccess\Plugin;
+use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
-use craft\elements\Entry;
 use yii\db\Expression;
 
 /**
- * Resolves nearest-ancestor element policies for structure entries.
+ * Resolves nearest-ancestor element policies for structured elements.
  *
  * Used by single-element authorization, query SQL, and the element sidebar.
- * Channels and singles have no structure parents, so these helpers no-op.
+ * Applies to structure entries, categories, and Commerce products that live in
+ * a Craft structure. Elements outside a structure no-op safely.
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
@@ -29,13 +30,13 @@ use yii\db\Expression;
 class StructurePolicyHelper
 {
     /**
-     * Finds the nearest ancestor entry that has an element policy.
+     * Finds the nearest ancestor that has an element policy.
      *
      * Walks parent → parent → … → top. The first ancestor with an element
-     * policy wins. Returns null when the entry is not in a structure or no
+     * policy wins. Returns null when the element is not in a structure or no
      * ancestor has a policy.
      *
-     * @param int $elementId Entry element ID.
+     * @param int $elementId Element ID (entry, category, or product).
      *
      * @return array{policy: AccessPolicy, ancestorId: int}|null
      */
@@ -103,7 +104,7 @@ class StructurePolicyHelper
     /**
      * Yii condition: no ancestor in the structure tree has an element policy.
      *
-     * Entries outside a structure never match the EXISTS, so this is true.
+     * Elements outside a structure never match the EXISTS, so this is true.
      *
      * @return array Condition array for andWhere / where.
      */
@@ -185,22 +186,32 @@ class StructurePolicyHelper
     }
 
     /**
-     * Loads an ancestor entry for sidebar display, if available.
+     * Loads an ancestor element for sidebar display, if available.
      *
      * @param int $ancestorId Ancestor element ID.
      *
-     * @return Entry|null Entry model, or null when missing.
+     * @return ElementInterface|null Element model, or null when missing.
      */
-    public static function ancestorEntry(int $ancestorId): ?Entry
+    public static function ancestorElement(int $ancestorId): ?ElementInterface
     {
-        /** @var Entry|null $entry */
-        $entry = Entry::find()
+        $type = (new Query())
+            ->select(['type'])
+            ->from([Table::ELEMENTS])
+            ->where(['id' => $ancestorId])
+            ->scalar();
+
+        if (!is_string($type) || $type === '' || !class_exists($type)) {
+            return null;
+        }
+
+        /** @var class-string<ElementInterface> $type */
+        /** @var ElementInterface|null $element */
+        $element = $type::find()
             ->id($ancestorId)
             ->status(null)
             ->site('*')
-            ->unique()
             ->one();
 
-        return $entry;
+        return $element;
     }
 }

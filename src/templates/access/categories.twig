@@ -6,7 +6,7 @@
 
 {% block content %}
     <p class="sca-intro">
-        {{ 'Set a default access policy for a whole category group. It applies to every category in that group that does not have its own access rules.'|t('super-content-access') }}
+        {{ 'Set a default access policy for a whole category group. It applies to categories that do not have their own access rules (nested categories may also inherit from a parent category first).'|t('super-content-access') }}
     </p>
 
     {% if groups|length %}

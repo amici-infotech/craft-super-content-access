@@ -6,7 +6,7 @@
 
 {% block content %}
     <p class="sca-intro">
-        {{ 'Set a default access policy for a whole product type. It applies to every product of that type that does not have its own access rules.'|t('super-content-access') }}
+        {{ 'Set a default access policy for a whole product type. It applies to products that do not have their own access rules (structured product types may also inherit from a parent product first).'|t('super-content-access') }}
     </p>
 
     {% if types|length %}

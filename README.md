@@ -9,7 +9,7 @@ No custom query params. No template helpers required for lists. Drop it in and i
 - Restrict entry, category, and product visibility to user groups and/or specific users.
 - Automatic query-level filtering — keep using native Craft element queries.
 - Channel, structure, category-group, and product-type defaults with per-element overrides.
-- Structure entries inherit from the nearest parent with Access Control when unset, then the section default.
+- Nested structure entries, categories, and structured products inherit from the nearest parent with Access Control when unset, then the scope default.
 - Read-only element sidebar summary of effective access.
 - Craft dashboard widgets for access overview and breakdown.
 - Optional `config/super-content-access.php` overrides (including env-driven enable/disable).
