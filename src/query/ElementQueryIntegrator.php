@@ -12,6 +12,7 @@ use amici\SuperContentAccess\domain\AuthorizationContext;
 use amici\SuperContentAccess\domain\PrincipalType;
 use amici\SuperContentAccess\events\ModifyElementQueryEvent;
 use amici\SuperContentAccess\helpers\CommerceHelper;
+use amici\SuperContentAccess\helpers\StructurePolicyHelper;
 use amici\SuperContentAccess\migrations\Install;
 use amici\SuperContentAccess\Plugin;
 use craft\base\Component;
@@ -216,23 +217,29 @@ class ElementQueryIntegrator extends Component
         $scopeColumn = $config['scopeColumn'];
         $scopeTableColumn = $config['scopeTableColumn'];
 
-        // Policy applies when it is the element policy, or the scope default
-        // while no element policy exists.
+        // Policy applies when it is the element's own policy…
         $applies = [
             'or',
             '[[p.elementId]] = [[elements.id]]',
-            [
-                'and',
-                "[[p.{$scopeColumn}]] = [[{$scopeTableColumn}]]",
-                [
-                    'not exists',
-                    (new Query())
-                        ->select(new Expression('1'))
-                        ->from(['ep' => Install::TABLE_POLICIES])
-                        ->where('[[ep.elementId]] = [[elements.id]]'),
-                ],
-            ],
         ];
+
+        // …or (entries only) the nearest structure-parent element policy…
+        if ($config['elementType'] === Entry::class) {
+            $applies[] = StructurePolicyHelper::nearestAncestorPolicyAppliesCondition();
+        }
+
+        // …or the scope default when no element / ancestor element policy wins.
+        $scopeApplies = [
+            'and',
+            "[[p.{$scopeColumn}]] = [[{$scopeTableColumn}]]",
+            StructurePolicyHelper::noOwnElementPolicyCondition(),
+        ];
+
+        if ($config['elementType'] === Entry::class) {
+            $scopeApplies[] = StructurePolicyHelper::noAncestorElementPolicyCondition();
+        }
+
+        $applies[] = $scopeApplies;
 
         $blockingPolicy = (new Query())
             ->select(new Expression('1'))

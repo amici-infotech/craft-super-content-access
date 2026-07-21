@@ -24,7 +24,7 @@ You can also install it from **Settings → Plugins** in the Control Panel.
 3. Optionally rename **Plugin Name** for the CP nav label.
 4. Add the **Access Control** field to entry type, category group, and/or product type layouts.
 5. Edit an element: choose **Everyone** or **Members only**, then select groups/users.
-6. (Optional) Set defaults under **Super Content Access → General Access** (Channels, Categories, Products).
+6. (Optional) Set defaults under **Super Content Access → General Access** (Sections, Categories, Products).
 7. (Optional) Add the **Access Overview** / **Access Breakdown** widgets on the Craft dashboard.
 8. On the front end, keep using `craft.entries` / `craft.categories` / `craft.products` — unauthorized elements are filtered out automatically.
 

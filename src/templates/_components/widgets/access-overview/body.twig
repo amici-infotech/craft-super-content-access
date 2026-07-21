@@ -17,7 +17,7 @@
         </div>
         <div class="sca-widget-stat">
             <strong class="sca-widget-stat__value">{{ overview.sectionPolicyCount }}</strong>
-            <span class="sca-widget-stat__label">{{ 'Channel defaults'|t('super-content-access') }}</span>
+            <span class="sca-widget-stat__label">{{ 'Section defaults'|t('super-content-access') }}</span>
         </div>
         <div class="sca-widget-stat">
             <strong class="sca-widget-stat__value">{{ overview.groupPolicyCount }}</strong>
@@ -34,7 +34,7 @@
     </div>
 
     <p class="sca-widget-overview__meta">
-        {{ '{restricted} of {total} channels have a default policy'|t('super-content-access', {
+        {{ '{restricted} of {total} sections have a default policy'|t('super-content-access', {
             restricted: overview.restrictedChannelCount,
             total: overview.channelCount,
         }) }}

@@ -1,10 +1,10 @@
 <?php
 /**
- * General Access management for channels, category groups, and product types.
+ * General Access management for sections, category groups, and product types.
  *
  * Provides the settings area where administrators pick a default access policy
- * for a whole scope. These defaults apply to every element in that scope that
- * has no element-level policy of its own.
+ * for a whole scope. These defaults apply when an element has no element-level
+ * policy of its own (and, for structure entries, no inherited parent policy).
  *
  * @link      https://amiciinfotech.com
  * @copyright Copyright (c) 2026 Amici Infotech
@@ -15,12 +15,12 @@ use amici\SuperContentAccess\assetbundles\AccessControlFieldAsset;
 use amici\SuperContentAccess\assetbundles\AccessScreensAsset;
 use amici\SuperContentAccess\helpers\CommerceHelper;
 use amici\SuperContentAccess\helpers\PolicyEditorHelper;
+use amici\SuperContentAccess\helpers\SectionAccessHelper;
 use amici\SuperContentAccess\Plugin;
 use Craft;
 use craft\elements\Category;
 use craft\elements\Entry;
 use craft\elements\User;
-use craft\models\Section;
 use craft\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -50,7 +50,7 @@ class AccessController extends Controller
     }
 
     /**
-     * Redirects the section root to the Channels list.
+     * Redirects the section root to the Sections list.
      *
      * @return Response Redirect response.
      */
@@ -60,9 +60,11 @@ class AccessController extends Controller
     }
 
     /**
-     * Lists all channels with their current default access.
+     * Lists channel and structure sections with their current default access.
      *
-     * @return Response Rendered channels list.
+     * Singles are omitted — set access on the single entry itself.
+     *
+     * @return Response Rendered sections list.
      */
     public function actionChannels(): Response
     {
@@ -70,7 +72,7 @@ class AccessController extends Controller
         $channels = [];
 
         foreach (Craft::$app->getEntries()->getAllSections() as $section) {
-            if ($section->type !== Section::TYPE_CHANNEL) {
+            if (!SectionAccessHelper::supportsGeneralAccess($section)) {
                 continue;
             }
 
@@ -95,19 +97,19 @@ class AccessController extends Controller
     }
 
     /**
-     * Renders the default access editor for a single channel.
+     * Renders the default access editor for a channel or structure section.
      *
      * @param string $section Section handle.
      *
-     * @return Response Rendered channel editor.
+     * @return Response Rendered section editor.
      *
-     * @throws NotFoundHttpException When the channel does not exist.
+     * @throws NotFoundHttpException When the section is missing or unsupported.
      */
     public function actionChannel(string $section): Response
     {
         $sectionModel = Craft::$app->getEntries()->getSectionByHandle($section);
-        if ($sectionModel === null || $sectionModel->type !== Section::TYPE_CHANNEL) {
-            throw new NotFoundHttpException('Channel not found.');
+        if ($sectionModel === null || !SectionAccessHelper::supportsGeneralAccess($sectionModel)) {
+            throw new NotFoundHttpException('Section not found.');
         }
 
         $principals = Plugin::getInstance()->getPolicies()->getForSection((int)$sectionModel->id);
@@ -130,11 +132,11 @@ class AccessController extends Controller
     }
 
     /**
-     * Persists a channel's default access policy.
+     * Persists a channel or structure section default access policy.
      *
      * @return Response|null Redirect on success, or null to re-render on error.
      *
-     * @throws NotFoundHttpException When the channel does not exist.
+     * @throws NotFoundHttpException When the section is missing or unsupported.
      */
     public function actionSaveChannel(): ?Response
     {
@@ -142,8 +144,8 @@ class AccessController extends Controller
 
         $sectionId = (int)$this->request->getRequiredBodyParam('sectionId');
         $section = Craft::$app->getEntries()->getSectionById($sectionId);
-        if ($section === null || $section->type !== Section::TYPE_CHANNEL) {
-            throw new NotFoundHttpException('Channel not found.');
+        if ($section === null || !SectionAccessHelper::supportsGeneralAccess($section)) {
+            throw new NotFoundHttpException('Section not found.');
         }
 
         $policy = $this->request->getBodyParam('policy', []);
@@ -153,7 +155,7 @@ class AccessController extends Controller
 
         if (!$enabled) {
             $policies->deleteForSection($sectionId);
-            Craft::$app->getSession()->setNotice(Craft::t('super-content-access', 'Channel access updated.'));
+            Craft::$app->getSession()->setNotice(Craft::t('super-content-access', 'Section access updated.'));
 
             return $this->redirectToPostedUrl();
         }
@@ -166,7 +168,7 @@ class AccessController extends Controller
             return null;
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('super-content-access', 'Channel access updated.'));
+        Craft::$app->getSession()->setNotice(Craft::t('super-content-access', 'Section access updated.'));
 
         return $this->redirectToPostedUrl();
     }

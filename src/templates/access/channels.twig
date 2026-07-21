@@ -6,7 +6,7 @@
 
 {% block content %}
     <p class="sca-intro">
-        {{ 'Set a default access policy for a whole channel. It applies to every entry in that channel that does not have its own access rules.'|t('super-content-access') }}
+        {{ 'Set a default access policy for a channel or structure. It applies to entries that do not have their own access rules (structure children may also inherit from a parent entry first).'|t('super-content-access') }}
     </p>
 
     {% if channels|length %}
@@ -14,6 +14,7 @@
             <thead>
                 <tr>
                     <th scope="col">{{ 'Name'|t('app') }}</th>
+                    <th scope="col">{{ 'Type'|t('app') }}</th>
                     <th scope="col">{{ 'Handle'|t('app') }}</th>
                     <th scope="col">{{ 'Default access'|t('super-content-access') }}</th>
                     <th scope="col" class="thin"></th>
@@ -26,6 +27,13 @@
                         <th scope="row" data-title="{{ 'Name'|t('app') }}">
                             <a href="{{ editUrl }}">{{ row.section.name }}</a>
                         </th>
+                        <td data-title="{{ 'Type'|t('app') }}">
+                            {% if row.section.type == 'structure' %}
+                                {{ 'Structure'|t('app') }}
+                            {% else %}
+                                {{ 'Channel'|t('app') }}
+                            {% endif %}
+                        </td>
                         <td data-title="{{ 'Handle'|t('app') }}">
                             <code>{{ row.section.handle }}</code>
                         </td>
@@ -47,6 +55,6 @@
             </tbody>
         </table>
     {% else %}
-        <p class="zilch">{{ 'No channels found.'|t('super-content-access') }}</p>
+        <p class="zilch">{{ 'No channels or structures found.'|t('super-content-access') }}</p>
     {% endif %}
 {% endblock %}

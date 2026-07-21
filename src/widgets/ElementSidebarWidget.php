@@ -17,6 +17,7 @@ use amici\SuperContentAccess\domain\PolicyPrincipal;
 use amici\SuperContentAccess\domain\PrincipalType;
 use amici\SuperContentAccess\fields\AccessControlField;
 use amici\SuperContentAccess\helpers\CommerceHelper;
+use amici\SuperContentAccess\helpers\StructurePolicyHelper;
 use amici\SuperContentAccess\Plugin;
 use Craft;
 use craft\base\Component;
@@ -26,6 +27,7 @@ use craft\elements\Entry;
 use craft\elements\User;
 use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
+use craft\models\Section;
 
 /**
  * Renders the read-only Super Content Access sidebar summary.
@@ -79,20 +81,35 @@ class ElementSidebarWidget extends Component
 
         $policies = Plugin::getInstance()->getPolicies();
         $policy = $policies->getForElementId($elementId);
-        $scope = $this->resolveScope($element, $policies);
+        $ancestor = null;
+        $scope = null;
 
         if ($policy instanceof AccessPolicy) {
             $principals = $policy->principals;
             $restricted = true;
             $source = 'element';
-        } elseif ($scope !== null) {
-            $principals = $scope['principals'];
-            $restricted = true;
-            $source = $scope['source'];
         } else {
-            $principals = [];
-            $restricted = false;
-            $source = 'none';
+            if ($element instanceof Entry) {
+                $ancestor = StructurePolicyHelper::nearestAncestorPolicy($elementId);
+            }
+
+            if ($ancestor !== null) {
+                $principals = $ancestor['policy']->principals;
+                $restricted = true;
+                $source = 'parent';
+                $scope = $this->parentScope($ancestor['ancestorId']);
+            } else {
+                $scope = $this->resolveScope($element, $policies);
+                if ($scope !== null) {
+                    $principals = $scope['principals'];
+                    $restricted = true;
+                    $source = $scope['source'];
+                } else {
+                    $principals = [];
+                    $restricted = false;
+                    $source = 'none';
+                }
+            }
         }
 
         // Only surface the summary where access is manageable (field present),
@@ -120,6 +137,34 @@ class ElementSidebarWidget extends Component
     }
 
     /**
+     * Builds sidebar scope details for an inherited parent entry policy.
+     *
+     * @param int $ancestorId Ancestor entry element ID.
+     *
+     * @return array{principals: PolicyPrincipal[], source: string, name: string, url: string|null, kind: string}
+     */
+    private function parentScope(int $ancestorId): array
+    {
+        $ancestor = StructurePolicyHelper::ancestorEntry($ancestorId);
+        $name = $ancestor !== null
+            ? (string)$ancestor
+            : Craft::t('super-content-access', 'Parent entry');
+
+        $url = null;
+        if ($ancestor !== null && $ancestor->getCpEditUrl()) {
+            $url = $ancestor->getCpEditUrl();
+        }
+
+        return [
+            'principals' => [],
+            'source' => 'parent',
+            'name' => $name,
+            'url' => $url,
+            'kind' => Craft::t('super-content-access', 'parent entry'),
+        ];
+    }
+
+    /**
      * Resolves inherited default-scope policy details for the element.
      *
      * @param ElementInterface $element Element being edited.
@@ -140,12 +185,16 @@ class ElementSidebarWidget extends Component
                 return null;
             }
 
+            $kind = $section->type === Section::TYPE_STRUCTURE
+                ? Craft::t('super-content-access', 'structure')
+                : Craft::t('super-content-access', 'channel');
+
             return [
                 'principals' => $principals,
                 'source' => 'channel',
                 'name' => $section->name,
                 'url' => UrlHelper::cpUrl('super-content-access/access/channels/' . $section->handle),
-                'kind' => Craft::t('super-content-access', 'channel'),
+                'kind' => $kind,
             ];
         }
 

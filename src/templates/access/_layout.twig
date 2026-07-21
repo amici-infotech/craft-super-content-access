@@ -5,7 +5,7 @@
 {% set commerceAvailable = commerceAvailable ?? false %}
 
 {% set scopeItems = [
-    { key: 'channels', label: 'Channels'|t('super-content-access'), url: url('super-content-access/access/channels'), available: true },
+    { key: 'channels', label: 'Sections'|t('super-content-access'), url: url('super-content-access/access/channels'), available: true },
     { key: 'categories', label: 'Categories'|t('super-content-access'), url: url('super-content-access/access/categories'), available: true },
     { key: 'products', label: 'Products'|t('super-content-access'), url: url('super-content-access/access/products'), available: commerceAvailable },
 ] %}

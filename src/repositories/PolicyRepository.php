@@ -138,7 +138,7 @@ class PolicyRepository extends Component
     }
 
     /**
-     * Loads the principals for a section-scoped (channel) policy.
+     * Loads the principals for a section-scoped (channel/structure default) policy.
      *
      * @param int $sectionId Section ID.
      *
@@ -150,7 +150,7 @@ class PolicyRepository extends Component
     }
 
     /**
-     * Saves the section-scoped (channel) policy and its principals.
+     * Saves the section-scoped (channel/structure) policy and its principals.
      *
      * @param int $sectionId Section ID.
      * @param PolicyPrincipal[] $principals Principals to persist.
@@ -163,7 +163,7 @@ class PolicyRepository extends Component
     }
 
     /**
-     * Deletes the section-scoped (channel) policy.
+     * Deletes the section-scoped (channel/structure) policy.
      *
      * @param int $sectionId Section ID.
      *
@@ -407,7 +407,7 @@ class PolicyRepository extends Component
     }
 
     /**
-     * Counts section-scoped (channel default) policies.
+     * Counts section-scoped (channel/structure default) policies.
      *
      * @return int Section policy count.
      */

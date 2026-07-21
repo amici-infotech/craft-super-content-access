@@ -59,7 +59,7 @@ interface PolicyServiceInterface
     public function deleteForElement(int $elementId): bool;
 
     /**
-     * Loads the principals for a section (channel) default policy.
+     * Loads the principals for a section (channel or structure) default policy.
      *
      * @param int $sectionId Section ID.
      *
@@ -68,7 +68,7 @@ interface PolicyServiceInterface
     public function getForSection(int $sectionId): ?array;
 
     /**
-     * Saves a section (channel) default policy.
+     * Saves a section (channel or structure) default policy.
      *
      * @param int $sectionId Section ID.
      * @param PolicyPrincipal[] $principals Principals to persist.
@@ -78,7 +78,7 @@ interface PolicyServiceInterface
     public function saveForSection(int $sectionId, array $principals): void;
 
     /**
-     * Removes a section (channel) default policy.
+     * Removes a section (channel or structure) default policy.
      *
      * @param int $sectionId Section ID.
      *

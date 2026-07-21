@@ -6,7 +6,7 @@ The plugin adds a **Super Content Access** section to the Craft Control Panel.
 
 Main sections:
 
-- **General Access** — defaults for channels, category groups, and product types.
+- **General Access** — defaults for sections (channels & structures), category groups, and product types.
 - **Settings** — plugin name and authorization toggle.
 
 The plugin nav stays expanded while you are on any Super Content Access URL. Native Craft breadcrumbs appear on General Access and Settings screens.
@@ -30,7 +30,7 @@ Drafts: submitted values persist against the **canonical** element ID.
 The meta sidebar shows a read-only **Access** band for entries, categories, and products:
 
 - Badge: **Public** or **Members only**.
-- Source note: set on this element, or inherited from the matching General Access default (with link).
+- Source note: set on this element, inherited from a structure parent entry, or inherited from the matching General Access default (with link).
 - Audience chips for groups and users when restricted.
 
 The sidebar does not edit policies. Use the Access Control field (or General Access for defaults).
@@ -41,17 +41,26 @@ The summary is hidden when access is fully public **and** the layout has no Acce
 
 Sidebar scopes:
 
-- **Channels** — Craft channel sections
+- **Sections** — Craft channel and structure sections (singles omitted)
 - **Categories** — category groups
 - **Products** — Commerce product types (shown only when Commerce is installed and enabled)
 
-### Channels
+### Sections
 
 ```text
 /admin/super-content-access/access/channels
 ```
 
-Lists every Craft **channel** section. Click a channel to set its default policy. Choosing Everyone removes the section-scoped policy.
+Lists every Craft **channel** and **structure** section. Click a section to set its default policy. Choosing Everyone removes the section-scoped policy.
+
+For structure entries, effective access is:
+
+1. Access Control on the entry itself
+2. Else nearest parent (or ancestor) entry that has Access Control set
+3. Else this section’s General Access default
+4. Else public
+
+Singles are not listed — configure access on the single entry.
 
 ### Category groups
 

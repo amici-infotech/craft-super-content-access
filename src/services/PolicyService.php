@@ -155,7 +155,7 @@ class PolicyService extends Component implements PolicyServiceInterface
     }
 
     /**
-     * Loads the principals for a section (channel) default policy.
+     * Loads the principals for a section (channel or structure) default policy.
      *
      * @param int $sectionId Section ID.
      *
@@ -167,7 +167,7 @@ class PolicyService extends Component implements PolicyServiceInterface
     }
 
     /**
-     * Saves a section (channel) default policy.
+     * Saves a section (channel or structure) default policy.
      *
      * @param int $sectionId Section ID.
      * @param PolicyPrincipal[] $principals Principals to persist.
@@ -180,7 +180,7 @@ class PolicyService extends Component implements PolicyServiceInterface
     }
 
     /**
-     * Removes a section (channel) default policy.
+     * Removes a section (channel or structure) default policy.
      *
      * @param int $sectionId Section ID.
      *

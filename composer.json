@@ -13,6 +13,8 @@
     ],
     "support": {
         "email": "contact@amiciinfotech.com",
+        "issues": "https://github.com/amici-infotech/craft-content-access/issues?state=open",
+        "source": "https://github.com/amici-infotech/craft-content-access",
         "docs": "https://docs.amiciinfotech.com/craft-cms/super-content-access"
     },
     "require": {

@@ -8,7 +8,8 @@ No custom query params. No template helpers required for lists. Drop it in and i
 
 - Restrict entry, category, and product visibility to user groups and/or specific users.
 - Automatic query-level filtering — keep using native Craft element queries.
-- Channel, category-group, and product-type defaults with per-element overrides.
+- Channel, structure, category-group, and product-type defaults with per-element overrides.
+- Structure entries inherit from the nearest parent with Access Control when unset, then the section default.
 - Read-only element sidebar summary of effective access.
 - Craft dashboard widgets for access overview and breakdown.
 - Optional `config/super-content-access.php` overrides (including env-driven enable/disable).
@@ -99,7 +100,7 @@ Supported keys:
 
 The plugin adds a **Super Content Access** section with:
 
-- **General Access** — channel, category group, and product type default policies.
+- **General Access** — section (channel/structure), category group, and product type default policies.
 - **Settings** — plugin name and authorization toggle (overridable via config).
 
 On entries, categories, and products, add the **Access Control** field to a field layout to edit per-element rules. The sidebar shows a read-only summary of effective access.

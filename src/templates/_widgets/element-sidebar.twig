@@ -18,7 +18,24 @@
         </span>
     </div>
 
-    {% if source in ['channel', 'group', 'productType'] %}
+    {% if source == 'parent' %}
+        <p class="sca-summary__source">
+            {% if scopeUrl and scopeName %}
+                {{ 'Inherited from parent entry {scope}.'|t('super-content-access', {
+                    scope: '<a href="' ~ scopeUrl ~ '">' ~ scopeName ~ '</a>',
+                })|raw }}
+            {% elseif scopeName %}
+                {{ 'Inherited from parent entry {scope}.'|t('super-content-access', {
+                    scope: scopeName,
+                }) }}
+            {% else %}
+                {{ 'Inherited from a parent entry.'|t('super-content-access') }}
+            {% endif %}
+            {{ 'Set this {element}’s Access Control field to override it.'|t('super-content-access', {
+                element: elementLabel,
+            }) }}
+        </p>
+    {% elseif source in ['channel', 'group', 'productType'] %}
         <p class="sca-summary__source">
             {% if scopeUrl and scopeName %}
                 {{ 'Inherited from the {scope} {kind} default.'|t('super-content-access', {

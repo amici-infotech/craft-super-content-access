@@ -31,10 +31,10 @@ $policies->deleteForElement(123); // back to public (unless a scope default appl
 
 Works for entries, categories, and products — policies are keyed by element ID.
 
-### Channel / Group / Product Type Defaults
+### Section / Group / Product Type Defaults
 
 ```php
-$principals = $policies->getForSection($sectionId); // null = no channel default
+$principals = $policies->getForSection($sectionId); // null = no section default
 $policies->saveForSection($sectionId, [
     new PolicyPrincipal(PrincipalType::GROUP, '2'),
 ]);
@@ -133,7 +133,7 @@ Event class: `amici\SuperContentAccess\events\PolicyEvent`
 Useful properties:
 
 - `$event->elementId` — set for per-element policies
-- `$event->sectionId` — set for channel defaults
+- `$event->sectionId` — set for section (channel/structure) defaults
 - `$event->groupId` — set for category-group defaults
 - `$event->productTypeId` — set for product-type defaults
 - `$event->principals` — principals being saved (save events)
@@ -175,7 +175,7 @@ Event::on(
     PolicyService::class,
     PolicyService::EVENT_BEFORE_DELETE_POLICY,
     static function (PolicyEvent $event): void {
-        // Keep a protected channel default from being cleared
+        // Keep a protected section default from being cleared
         if ($event->sectionId === 5) {
             $event->isValid = false;
         }

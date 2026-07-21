@@ -7,7 +7,7 @@ An access policy describes **who** may view protected content.
 A policy row is exactly one of:
 
 - **Element policy** — `elementId` set; applies to that entry, category, or product only.
-- **Channel default** — `sectionId` set; applies to every entry in that channel with no element policy.
+- **Section default** — `sectionId` set; applies to entries in that channel or structure when no element (or structure-parent) policy wins. Singles are not listed in General Access — set access on the single entry.
 - **Category group default** — `groupId` set; applies to every category in that group with no element policy.
 - **Product type default** — `productTypeId` set; applies to every product of that type with no element policy (requires Craft Commerce).
 
@@ -35,8 +35,11 @@ Built-in resolver types also include `guest` and `public` for the authorization 
 For each element (after optional bypasses below):
 
 1. If an **element policy** exists → that policy decides visibility.
-2. Else if a **scope default** exists (channel / category group / product type) → that policy decides visibility.
-3. Else → **public**.
+2. Else for **structure entries**: walk parent → parent → … → top; the nearest ancestor with an element policy decides visibility.
+3. Else if a **scope default** exists (section / category group / product type) → that policy decides visibility.
+4. Else → **public**.
+
+Channels and singles skip step 2 (no structure parents). Categories and products also skip step 2.
 
 ### Built-in bypasses
 

@@ -10,9 +10,9 @@
 
 ## Scope Default Not Applying
 
-1. Open **General Access** (Channels / Categories / Products) and confirm the scope shows **Members only**.
-2. Element-level policies override scope defaults. Set the Access Control field to **Everyone** to inherit the default.
-3. Only Craft sections of type **channel** appear under Channels. Category groups and Commerce product types appear under their own tabs.
+1. Open **General Access** (Sections / Categories / Products) and confirm the scope shows **Members only**.
+2. Element-level policies override scope defaults. Set the Access Control field to **Everyone** to inherit the default (for structures, a parent entry policy still wins before the section default).
+3. Channels and structures appear under **Sections**. Singles do not — set access on the single entry. Category groups and Commerce product types appear under their own tabs.
 
 ## Admin / Author Bypass Surprises
 
@@ -21,7 +21,7 @@
 
 ## PHP `canAccess` Disagrees With a Front-End Query
 
-Both paths use the same resolution order (element → scope default → public), plus the same admin/author bypasses. If they disagree:
+Both paths use the same resolution order (element → structure parent → scope default → public), plus the same admin/author bypasses. If they disagree:
 
 1. Clear Craft caches / restart long-lived PHP workers (MCP, queue, etc.).
 2. Confirm you are not checking in a CP request context (CP always allows).

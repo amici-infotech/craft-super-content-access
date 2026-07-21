@@ -8,10 +8,10 @@
 namespace amici\SuperContentAccess\services;
 
 use amici\SuperContentAccess\domain\PrincipalType;
+use amici\SuperContentAccess\helpers\SectionAccessHelper;
 use amici\SuperContentAccess\Plugin;
 use Craft;
 use craft\base\Component;
-use craft\models\Section;
 
 /**
  * Aggregates access-control stats for Craft dashboard widgets.
@@ -44,10 +44,10 @@ class DiagnosticsService extends Component
         $repository = $plugin->getPolicyRepository();
         $principals = $repository->countPrincipals();
 
-        $channelCount = 0;
+        $sectionCount = 0;
         foreach (Craft::$app->getEntries()->getAllSections() as $section) {
-            if ($section->type === Section::TYPE_CHANNEL) {
-                $channelCount++;
+            if (SectionAccessHelper::supportsGeneralAccess($section)) {
+                $sectionCount++;
             }
         }
 
@@ -59,7 +59,7 @@ class DiagnosticsService extends Component
             'groupPolicyCount' => $repository->countGroupPolicies(),
             'productTypePolicyCount' => $repository->countProductTypePolicies(),
             'principalCount' => $principals['total'],
-            'channelCount' => $channelCount,
+            'channelCount' => $sectionCount,
             'restrictedChannelCount' => $repository->countSectionPolicies(),
             'resolverTypes' => array_map(
                 static fn($resolver): string => $resolver->getType(),
@@ -91,7 +91,7 @@ class DiagnosticsService extends Component
                 ],
                 [
                     'key' => 'section',
-                    'label' => Craft::t('super-content-access', 'Channel defaults'),
+                    'label' => Craft::t('super-content-access', 'Section defaults'),
                     'value' => $repository->countSectionPolicies(),
                     'color' => '#cf7118',
                 ],

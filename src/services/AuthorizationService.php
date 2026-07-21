@@ -13,6 +13,7 @@ use amici\SuperContentAccess\domain\AuthorizationContext;
 use amici\SuperContentAccess\domain\contracts\AuthorizationServiceInterface;
 use amici\SuperContentAccess\domain\PolicyPrincipal;
 use amici\SuperContentAccess\helpers\CommerceHelper;
+use amici\SuperContentAccess\helpers\StructurePolicyHelper;
 use amici\SuperContentAccess\Plugin;
 use craft\base\Component;
 use craft\base\ElementInterface;
@@ -24,7 +25,8 @@ use craft\elements\Entry;
  * Authorization helpers for single-element checks and context access.
  *
  * Resolves effective access the same way element queries do:
- * element policy → else type default (channel / category group / product type) → else public.
+ * element policy → nearest structure-parent element policy → section / group /
+ * product-type General Access default → else public.
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
@@ -97,6 +99,14 @@ class AuthorizationService extends Component implements AuthorizationServiceInte
         $policy = $policies->getForElementId($elementId);
         if ($policy instanceof AccessPolicy) {
             return $pipeline->authorize($policy, $context);
+        }
+
+        // Structure entries: inherit from the nearest parent with an element policy.
+        if ($element instanceof Entry || ($element === null && $this->isElementType($elementId, Entry::class))) {
+            $ancestor = StructurePolicyHelper::nearestAncestorPolicy($elementId);
+            if ($ancestor !== null) {
+                return $pipeline->authorize($ancestor['policy'], $context);
+            }
         }
 
         $principals = $this->defaultPrincipalsFor($elementId, $element);

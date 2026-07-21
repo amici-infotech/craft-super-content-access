@@ -7,6 +7,8 @@
     { label: 'General Access'|t('super-content-access'), url: url('super-content-access/access/channels') },
 ] %}
 
+{% set sectionTypeLabel = section.type == 'structure' ? 'Structure'|t('app') : 'Channel'|t('app') %}
+
 {% block content %}
     {{ actionInput('super-content-access/access/save-channel') }}
     {{ redirectInput('super-content-access/access/channels/' ~ section.handle) }}
@@ -14,7 +16,7 @@
 
     <div class="sca-channel-meta">
         <span class="sca-channel-meta__item">
-            <span class="sca-channel-meta__label">{{ 'Channel'|t('super-content-access') }}</span>
+            <span class="sca-channel-meta__label">{{ sectionTypeLabel }}</span>
             <span class="sca-channel-meta__value">{{ section.name }}</span>
         </span>
         <span class="sca-channel-meta__item">
@@ -28,7 +30,11 @@
     </div>
 
     <p class="sca-intro">
-        {{ 'Choose who can view entries in this channel by default. Individual entries can override this with their own Access Control field.'|t('super-content-access') }}
+        {% if section.type == 'structure' %}
+            {{ 'Choose who can view entries in this structure by default. Individual entries override this. Nested entries without their own rules inherit from the nearest parent that has Access Control set, then fall back to this default.'|t('super-content-access') }}
+        {% else %}
+            {{ 'Choose who can view entries in this channel by default. Individual entries can override this with their own Access Control field.'|t('super-content-access') }}
+        {% endif %}
     </p>
 
     {% include 'super-content-access/_includes/policy-editor' with {

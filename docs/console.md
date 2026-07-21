@@ -26,7 +26,7 @@ php craft super-content-access/query-probe --clear=1 --force=1
 
 - Temporarily disables the production integrator when comparing baseline vs constrained queries.
 - Builds an authorization context (guest or user/groups).
-- Applies the same Entry access constraint used on the front end (including channel defaults and author bypass when enabled).
+- Applies the same Entry access constraint used on the front end (including section defaults, structure parent inheritance, and author bypass when enabled).
 - Prints counts / IDs so you can confirm filtering.
 
 Use this when changing resolvers, indexes, or SQL shape to confirm behaviour before deploying.
