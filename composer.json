@@ -3,7 +3,25 @@
     "description": "Element-level authorization for Craft CMS with query-level access control.",
     "version": "5.0.0",
     "type": "craft-plugin",
-    "keywords": ["craft", "cms", "craftcms", "craft-plugin", "authorization", "access", "permissions"],
+    "keywords": [
+        "craftcms",
+        "craft-plugin",
+        "authorization",
+        "access-control",
+        "permissions",
+        "content-security",
+        "content-protection",
+        "element-permissions",
+        "query-level-security",
+        "query-filtering",
+        "rbac",
+        "acl",
+        "private-content",
+        "members-only",
+        "protected-content",
+        "user-groups",
+        "craft5"
+    ],
     "license": "proprietary",
     "authors": [
         {
