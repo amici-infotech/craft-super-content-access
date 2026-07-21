@@ -34,7 +34,7 @@
         "developer": "Amici Infotech",
         "developerUrl": "https://amiciinfotech.com",
         "documentationUrl": "https://docs.amiciinfotech.com/craft-cms/super-content-access",
-        "changelogUrl": "https://github.com/amici-infotech/craft-super-content-access/CHANGELOG.md",
+        "changelogUrl": "https://github.com/amici-infotech/craft-super-content-access/blob/main/CHANGELOG.md",
         "class": "amici\\SuperContentAccess\\Plugin"
     }
 }

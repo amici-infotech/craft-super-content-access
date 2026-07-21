@@ -57,4 +57,88 @@ interface PolicyServiceInterface
      * @return bool True when a policy was deleted.
      */
     public function deleteForElement(int $elementId): bool;
+
+    /**
+     * Loads the principals for a section (channel) default policy.
+     *
+     * @param int $sectionId Section ID.
+     *
+     * @return PolicyPrincipal[]|null Principals, or null when no policy exists.
+     */
+    public function getForSection(int $sectionId): ?array;
+
+    /**
+     * Saves a section (channel) default policy.
+     *
+     * @param int $sectionId Section ID.
+     * @param PolicyPrincipal[] $principals Principals to persist.
+     *
+     * @return void Nothing is returned.
+     */
+    public function saveForSection(int $sectionId, array $principals): void;
+
+    /**
+     * Removes a section (channel) default policy.
+     *
+     * @param int $sectionId Section ID.
+     *
+     * @return bool Whether a policy was deleted.
+     */
+    public function deleteForSection(int $sectionId): bool;
+
+    /**
+     * Loads the principals for a category-group default policy.
+     *
+     * @param int $groupId Category group ID.
+     *
+     * @return PolicyPrincipal[]|null Principals, or null when no policy exists.
+     */
+    public function getForGroup(int $groupId): ?array;
+
+    /**
+     * Saves a category-group default policy.
+     *
+     * @param int $groupId Category group ID.
+     * @param PolicyPrincipal[] $principals Principals to persist.
+     *
+     * @return void Nothing is returned.
+     */
+    public function saveForGroup(int $groupId, array $principals): void;
+
+    /**
+     * Removes a category-group default policy.
+     *
+     * @param int $groupId Category group ID.
+     *
+     * @return bool Whether a policy was deleted.
+     */
+    public function deleteForGroup(int $groupId): bool;
+
+    /**
+     * Loads the principals for a Commerce product-type default policy.
+     *
+     * @param int $productTypeId Product type ID.
+     *
+     * @return PolicyPrincipal[]|null Principals, or null when no policy exists.
+     */
+    public function getForProductType(int $productTypeId): ?array;
+
+    /**
+     * Saves a Commerce product-type default policy.
+     *
+     * @param int $productTypeId Product type ID.
+     * @param PolicyPrincipal[] $principals Principals to persist.
+     *
+     * @return void Nothing is returned.
+     */
+    public function saveForProductType(int $productTypeId, array $principals): void;
+
+    /**
+     * Removes a Commerce product-type default policy.
+     *
+     * @param int $productTypeId Product type ID.
+     *
+     * @return bool Whether a policy was deleted.
+     */
+    public function deleteForProductType(int $productTypeId): bool;
 }

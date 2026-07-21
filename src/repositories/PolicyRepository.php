@@ -51,20 +51,6 @@ class PolicyRepository extends Component
     }
 
     /**
-     * Whether an element-scoped policy exists for the given element ID.
-     *
-     * @param int $elementId Element ID to check.
-     *
-     * @return bool True when a policy exists.
-     */
-    public function existsForElementId(int $elementId): bool
-    {
-        return AccessPolicyRecord::find()
-            ->where(['elementId' => $elementId])
-            ->exists();
-    }
-
-    /**
      * Persists principals for an element-scoped policy.
      *
      * @param int $elementId Element ID to protect.
@@ -405,51 +391,6 @@ class PolicyRepository extends Component
         return (int)(new Query())
             ->from([AccessPolicyRecord::tableName()])
             ->count();
-    }
-
-    /**
-     * Whether any policy row exists (stops at the first match).
-     *
-     * Prefer this over countPolicies() on the request hot path.
-     *
-     * @return bool True when at least one policy exists.
-     */
-    public function existsAny(): bool
-    {
-        return (new Query())
-            ->from([AccessPolicyRecord::tableName()])
-            ->exists();
-    }
-
-    /**
-     * Whether any element-scoped policy exists (stops at the first match).
-     *
-     * @return bool True when at least one element policy exists.
-     */
-    public function existsElementPolicy(): bool
-    {
-        return (new Query())
-            ->from([AccessPolicyRecord::tableName()])
-            ->where(['not', ['elementId' => null]])
-            ->exists();
-    }
-
-    /**
-     * Returns cheap presence flags for the query fast-path.
-     *
-     * Uses EXISTS (LIMIT 1) so cost stays flat even when many policies exist.
-     * Short-circuits the element check when no policies exist at all.
-     *
-     * @return array{any: bool, element: bool} Policy presence flags.
-     */
-    public function presenceFlags(): array
-    {
-        $any = $this->existsAny();
-
-        return [
-            'any' => $any,
-            'element' => $any && $this->existsElementPolicy(),
-        ];
     }
 
     /**

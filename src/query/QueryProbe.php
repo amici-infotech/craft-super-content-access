@@ -1,6 +1,6 @@
 <?php
 /**
- * Spike helper for seeding sample policies and probing EntryQuery constraints.
+ * Diagnostic helper for seeding sample policies and probing EntryQuery constraints.
  *
  * @link      https://amiciinfotech.com
  * @copyright Copyright (c) 2026 Amici Infotech
@@ -23,9 +23,10 @@ use DateTime;
 use yii\base\Event;
 
 /**
- * Spike helper: seed sample policies and apply experimental EntryQuery constraints.
+ * Console diagnostic helper for verifying Entry query authorization SQL.
  *
- * Not the production AuthorizationPipeline — only for console verification.
+ * Uses the same production constraint SQL as the front end. Entry-only for now;
+ * category and product filtering should be verified with normal front-end queries.
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
@@ -115,7 +116,7 @@ class QueryProbe extends Component
     }
 
     /**
-     * Seeds a policy on one entry so constrained vs baseline differ.
+     * Seeds a sample element policy so constrained vs baseline results differ.
      *
      * Creates:
      * - policy on the first matching entry (or --entryId)
@@ -197,11 +198,14 @@ class QueryProbe extends Component
     }
 
     /**
-     * Clears all seeded policy rows (spike helper).
+     * Deletes every access policy and principal row.
+     *
+     * Destructive — intended only for local diagnostic resets. Callers must
+     * require an explicit force flag before invoking this.
      *
      * @return int Number of policy rows removed.
      */
-    public function clearAllPolicies(): int
+    public function wipeAllPolicies(): int
     {
         $db = Craft::$app->getDb();
         $count = (int)(new Query())->from([Install::TABLE_POLICIES])->count();

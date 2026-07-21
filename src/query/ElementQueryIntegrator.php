@@ -180,53 +180,9 @@ class ElementQueryIntegrator extends Component
     }
 
     /**
-     * Applies production access SQL for Entry queries (probe / PHP API helper).
+     * Applies the production access SQL for a given context (also used by the console probe).
      *
-     * @param EntryQuery $query Entry query to constrain.
-     * @param AuthorizationContext $context Current authorization context.
-     *
-     * @return void Nothing is returned.
-     */
-    public function applyAccessConstraintForEntry(EntryQuery $query, AuthorizationContext $context): void
-    {
-        $this->applyAccessConstraint($query, $context, $this->entryConfig());
-    }
-
-    /**
-     * Applies production access SQL for Category queries.
-     *
-     * @param CategoryQuery $query Category query to constrain.
-     * @param AuthorizationContext $context Current authorization context.
-     *
-     * @return void Nothing is returned.
-     */
-    public function applyAccessConstraintForCategory(CategoryQuery $query, AuthorizationContext $context): void
-    {
-        $this->applyAccessConstraint($query, $context, $this->categoryConfig());
-    }
-
-    /**
-     * Applies production access SQL for Product queries.
-     *
-     * @param ElementQuery $query Product query to constrain.
-     * @param AuthorizationContext $context Current authorization context.
-     *
-     * @return void Nothing is returned.
-     */
-    public function applyAccessConstraintForProduct(ElementQuery $query, AuthorizationContext $context): void
-    {
-        $config = $this->productConfig();
-        if ($config === null) {
-            return;
-        }
-
-        $this->applyAccessConstraint($query, $context, $config);
-    }
-
-    /**
-     * Applies the production access SQL for a given context (also used by probe).
-     *
-     * When `$config` is omitted, Entry queries are assumed (backward compatible).
+     * When `$config` is omitted, Entry queries are assumed.
      *
      * @param ElementQuery $query Element query to constrain.
      * @param AuthorizationContext $context Current authorization context.

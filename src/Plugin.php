@@ -54,11 +54,6 @@ class Plugin extends CraftPlugin
     public static ?Plugin $plugin = null;
 
     /**
-     * @var string Plugin handle used in routes and config.
-     */
-    public static string $pluginHandle = 'super-content-access';
-
-    /**
      * @var string Database schema version.
      */
     public string $schemaVersion = '5.0.0';
@@ -134,7 +129,7 @@ class Plugin extends CraftPlugin
         // across every plugin page, not just /settings.
         $item['url'] = 'super-content-access';
 
-        $item['subnav']['channels'] = [
+        $item['subnav']['access'] = [
             'label' => Craft::t('super-content-access', 'General Access'),
             'url' => 'super-content-access/access/channels',
         ];

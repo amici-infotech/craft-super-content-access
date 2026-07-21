@@ -143,16 +143,6 @@ trait PluginTrait
     }
 
     /**
-     * @deprecated Use getElementQueryIntegrator().
-     *
-     * @return ElementQueryIntegrator The element query integrator instance.
-     */
-    public function getEntryQueryIntegrator(): ElementQueryIntegrator
-    {
-        return $this->getElementQueryIntegrator();
-    }
-
-    /**
      * Returns the element sidebar widget renderer.
      *
      * @return ElementSidebarWidget The sidebar widget instance.

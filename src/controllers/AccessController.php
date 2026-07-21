@@ -13,10 +13,8 @@ namespace amici\SuperContentAccess\controllers;
 
 use amici\SuperContentAccess\assetbundles\AccessControlFieldAsset;
 use amici\SuperContentAccess\assetbundles\AccessScreensAsset;
-use amici\SuperContentAccess\domain\PolicyPrincipal;
-use amici\SuperContentAccess\domain\PrincipalType;
-use amici\SuperContentAccess\fields\data\AccessControlValue;
 use amici\SuperContentAccess\helpers\CommerceHelper;
+use amici\SuperContentAccess\helpers\PolicyEditorHelper;
 use amici\SuperContentAccess\Plugin;
 use Craft;
 use craft\elements\Category;
@@ -113,7 +111,7 @@ class AccessController extends Controller
         }
 
         $principals = Plugin::getInstance()->getPolicies()->getForSection((int)$sectionModel->id);
-        $value = $this->valueFromPrincipals($principals);
+        $value = PolicyEditorHelper::valueFromPrincipals($principals);
 
         $this->view->registerAssetBundle(AccessScreensAsset::class);
         $this->view->registerAssetBundle(AccessControlFieldAsset::class);
@@ -125,8 +123,8 @@ class AccessController extends Controller
             'section' => $sectionModel,
             'entryCount' => (int)Entry::find()->section($sectionModel->handle)->status(null)->count(),
             'value' => $value,
-            'groupOptions' => $this->groupOptions(),
-            'selectedUsers' => $this->selectedUsers($value),
+            'groupOptions' => PolicyEditorHelper::groupOptions(),
+            'selectedUsers' => PolicyEditorHelper::selectedUsers($value),
             'userElementType' => User::class,
         ]);
     }
@@ -161,7 +159,7 @@ class AccessController extends Controller
         }
 
         try {
-            $policies->saveForSection($sectionId, $this->principalsFromInput(is_array($policy) ? $policy : []));
+            $policies->saveForSection($sectionId, PolicyEditorHelper::principalsFromInput(is_array($policy) ? $policy : []));
         } catch (\Throwable $e) {
             Craft::$app->getSession()->setError($e->getMessage());
 
@@ -221,7 +219,7 @@ class AccessController extends Controller
         }
 
         $principals = Plugin::getInstance()->getPolicies()->getForGroup((int)$groupModel->id);
-        $value = $this->valueFromPrincipals($principals);
+        $value = PolicyEditorHelper::valueFromPrincipals($principals);
 
         $this->view->registerAssetBundle(AccessScreensAsset::class);
         $this->view->registerAssetBundle(AccessControlFieldAsset::class);
@@ -233,8 +231,8 @@ class AccessController extends Controller
             'group' => $groupModel,
             'categoryCount' => (int)Category::find()->group($groupModel->handle)->status(null)->count(),
             'value' => $value,
-            'groupOptions' => $this->groupOptions(),
-            'selectedUsers' => $this->selectedUsers($value),
+            'groupOptions' => PolicyEditorHelper::groupOptions(),
+            'selectedUsers' => PolicyEditorHelper::selectedUsers($value),
             'userElementType' => User::class,
         ]);
     }
@@ -269,7 +267,7 @@ class AccessController extends Controller
         }
 
         try {
-            $policies->saveForGroup($groupId, $this->principalsFromInput(is_array($policy) ? $policy : []));
+            $policies->saveForGroup($groupId, PolicyEditorHelper::principalsFromInput(is_array($policy) ? $policy : []));
         } catch (\Throwable $e) {
             Craft::$app->getSession()->setError($e->getMessage());
 
@@ -339,7 +337,7 @@ class AccessController extends Controller
         }
 
         $principals = Plugin::getInstance()->getPolicies()->getForProductType((int)$typeModel->id);
-        $value = $this->valueFromPrincipals($principals);
+        $value = PolicyEditorHelper::valueFromPrincipals($principals);
 
         $this->view->registerAssetBundle(AccessScreensAsset::class);
         $this->view->registerAssetBundle(AccessControlFieldAsset::class);
@@ -357,8 +355,8 @@ class AccessController extends Controller
             'type' => $typeModel,
             'productCount' => $productCount,
             'value' => $value,
-            'groupOptions' => $this->groupOptions(),
-            'selectedUsers' => $this->selectedUsers($value),
+            'groupOptions' => PolicyEditorHelper::groupOptions(),
+            'selectedUsers' => PolicyEditorHelper::selectedUsers($value),
             'userElementType' => User::class,
         ]);
     }
@@ -396,7 +394,7 @@ class AccessController extends Controller
         }
 
         try {
-            $policies->saveForProductType($productTypeId, $this->principalsFromInput(is_array($policy) ? $policy : []));
+            $policies->saveForProductType($productTypeId, PolicyEditorHelper::principalsFromInput(is_array($policy) ? $policy : []));
         } catch (\Throwable $e) {
             Craft::$app->getSession()->setError($e->getMessage());
 
@@ -420,121 +418,5 @@ class AccessController extends Controller
         if (!CommerceHelper::isAvailable()) {
             throw new NotFoundHttpException('Craft Commerce is not available.');
         }
-    }
-
-    /**
-     * Builds an editor value object from stored principals.
-     *
-     * @param PolicyPrincipal[]|null $principals Stored principals, or null.
-     *
-     * @return AccessControlValue Value for the shared policy editor.
-     */
-    private function valueFromPrincipals(?array $principals): AccessControlValue
-    {
-        if ($principals === null) {
-            return new AccessControlValue();
-        }
-
-        $groupIds = [];
-        $userIds = [];
-
-        foreach ($principals as $principal) {
-            if ($principal->type === PrincipalType::GROUP) {
-                $groupIds[] = (int)$principal->identifier;
-            } elseif ($principal->type === PrincipalType::USER) {
-                $userIds[] = (int)$principal->identifier;
-            }
-        }
-
-        return new AccessControlValue(
-            enabled: true,
-            groupIds: array_values(array_unique(array_filter($groupIds))),
-            userIds: array_values(array_unique(array_filter($userIds))),
-        );
-    }
-
-    /**
-     * Converts posted editor data into domain principals.
-     *
-     * @param array $policy Posted policy data.
-     *
-     * @return PolicyPrincipal[] Principals to persist.
-     */
-    private function principalsFromInput(array $policy): array
-    {
-        $principals = [];
-
-        foreach ($this->intList($policy['groupIds'] ?? []) as $groupId) {
-            $principals[] = new PolicyPrincipal(PrincipalType::GROUP, (string)$groupId);
-        }
-
-        foreach ($this->intList($policy['userIds'] ?? []) as $userId) {
-            $principals[] = new PolicyPrincipal(PrincipalType::USER, (string)$userId);
-        }
-
-        return $principals;
-    }
-
-    /**
-     * Builds user group options for the editor.
-     *
-     * @return array<int, array{label: string, value: string}> Group options.
-     */
-    private function groupOptions(): array
-    {
-        $options = [];
-
-        foreach (Craft::$app->getUserGroups()->getAllGroups() as $group) {
-            $options[] = [
-                'label' => $group->name,
-                'value' => (string)$group->id,
-            ];
-        }
-
-        return $options;
-    }
-
-    /**
-     * Loads the selected user elements for the editor.
-     *
-     * @param AccessControlValue $value Editor value.
-     *
-     * @return User[] Selected users.
-     */
-    private function selectedUsers(AccessControlValue $value): array
-    {
-        if ($value->userIds === []) {
-            return [];
-        }
-
-        return User::find()
-            ->id($value->userIds)
-            ->status(null)
-            ->fixedOrder()
-            ->all();
-    }
-
-    /**
-     * Normalizes a submitted list into unique positive integers.
-     *
-     * @param mixed $input Raw submitted value.
-     *
-     * @return int[] Filtered integer list.
-     */
-    private function intList(mixed $input): array
-    {
-        if (!is_array($input)) {
-            $input = $input === '' || $input === null ? [] : [$input];
-        }
-
-        $ids = [];
-        foreach ($input as $id) {
-            $id = (int)$id;
-            if ($id > 0) {
-                $ids[] = $id;
-            }
-        }
-
-        return array_values(array_unique($ids));
     }
 }

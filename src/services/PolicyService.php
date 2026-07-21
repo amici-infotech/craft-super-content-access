@@ -176,27 +176,7 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function saveForSection(int $sectionId, array $principals): void
     {
-        $this->validatePrincipals($principals);
-
-        $event = new PolicyEvent([
-            'sender' => $this,
-            'sectionId' => $sectionId,
-            'principals' => $principals,
-        ]);
-        $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
-
-        if (!$event->isValid) {
-            throw new \RuntimeException('Access policy save was cancelled.');
-        }
-
-        $this->repository()->saveForSection($sectionId, $principals);
-        $this->resetQueryMemo();
-
-        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
-            'sender' => $this,
-            'sectionId' => $sectionId,
-            'principals' => $principals,
-        ]));
+        $this->saveScopePolicy('sectionId', $sectionId, $principals, fn() => $this->repository()->saveForSection($sectionId, $principals));
     }
 
     /**
@@ -208,26 +188,7 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function deleteForSection(int $sectionId): bool
     {
-        $event = new PolicyEvent([
-            'sender' => $this,
-            'sectionId' => $sectionId,
-        ]);
-        $this->trigger(self::EVENT_BEFORE_DELETE_POLICY, $event);
-
-        if (!$event->isValid) {
-            return false;
-        }
-
-        $deleted = $this->repository()->deleteBySectionId($sectionId);
-        if ($deleted) {
-            $this->resetQueryMemo();
-            $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new PolicyEvent([
-                'sender' => $this,
-                'sectionId' => $sectionId,
-            ]));
-        }
-
-        return $deleted;
+        return $this->deleteScopePolicy('sectionId', $sectionId, fn(): bool => $this->repository()->deleteBySectionId($sectionId));
     }
 
     /**
@@ -252,27 +213,7 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function saveForGroup(int $groupId, array $principals): void
     {
-        $this->validatePrincipals($principals);
-
-        $event = new PolicyEvent([
-            'sender' => $this,
-            'groupId' => $groupId,
-            'principals' => $principals,
-        ]);
-        $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
-
-        if (!$event->isValid) {
-            throw new \RuntimeException('Access policy save was cancelled.');
-        }
-
-        $this->repository()->saveForGroup($groupId, $principals);
-        $this->resetQueryMemo();
-
-        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
-            'sender' => $this,
-            'groupId' => $groupId,
-            'principals' => $principals,
-        ]));
+        $this->saveScopePolicy('groupId', $groupId, $principals, fn() => $this->repository()->saveForGroup($groupId, $principals));
     }
 
     /**
@@ -284,26 +225,7 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function deleteForGroup(int $groupId): bool
     {
-        $event = new PolicyEvent([
-            'sender' => $this,
-            'groupId' => $groupId,
-        ]);
-        $this->trigger(self::EVENT_BEFORE_DELETE_POLICY, $event);
-
-        if (!$event->isValid) {
-            return false;
-        }
-
-        $deleted = $this->repository()->deleteByGroupId($groupId);
-        if ($deleted) {
-            $this->resetQueryMemo();
-            $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new PolicyEvent([
-                'sender' => $this,
-                'groupId' => $groupId,
-            ]));
-        }
-
-        return $deleted;
+        return $this->deleteScopePolicy('groupId', $groupId, fn(): bool => $this->repository()->deleteByGroupId($groupId));
     }
 
     /**
@@ -328,27 +250,7 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function saveForProductType(int $productTypeId, array $principals): void
     {
-        $this->validatePrincipals($principals);
-
-        $event = new PolicyEvent([
-            'sender' => $this,
-            'productTypeId' => $productTypeId,
-            'principals' => $principals,
-        ]);
-        $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
-
-        if (!$event->isValid) {
-            throw new \RuntimeException('Access policy save was cancelled.');
-        }
-
-        $this->repository()->saveForProductType($productTypeId, $principals);
-        $this->resetQueryMemo();
-
-        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
-            'sender' => $this,
-            'productTypeId' => $productTypeId,
-            'principals' => $principals,
-        ]));
+        $this->saveScopePolicy('productTypeId', $productTypeId, $principals, fn() => $this->repository()->saveForProductType($productTypeId, $principals));
     }
 
     /**
@@ -360,9 +262,58 @@ class PolicyService extends Component implements PolicyServiceInterface
      */
     public function deleteForProductType(int $productTypeId): bool
     {
+        return $this->deleteScopePolicy('productTypeId', $productTypeId, fn(): bool => $this->repository()->deleteByProductTypeId($productTypeId));
+    }
+
+    /**
+     * Saves a default-scope policy with before/after events.
+     *
+     * @param string $idProperty PolicyEvent property (sectionId, groupId, productTypeId).
+     * @param int $id Scope ID.
+     * @param PolicyPrincipal[] $principals Principals to persist.
+     * @param callable(): void $persist Repository persist callback.
+     *
+     * @return void Nothing is returned.
+     */
+    private function saveScopePolicy(string $idProperty, int $id, array $principals, callable $persist): void
+    {
+        $this->validatePrincipals($principals);
+
         $event = new PolicyEvent([
             'sender' => $this,
-            'productTypeId' => $productTypeId,
+            $idProperty => $id,
+            'principals' => $principals,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_SAVE_POLICY, $event);
+
+        if (!$event->isValid) {
+            throw new \RuntimeException('Access policy save was cancelled.');
+        }
+
+        $persist();
+        $this->resetQueryMemo();
+
+        $this->trigger(self::EVENT_AFTER_SAVE_POLICY, new PolicyEvent([
+            'sender' => $this,
+            $idProperty => $id,
+            'principals' => $principals,
+        ]));
+    }
+
+    /**
+     * Deletes a default-scope policy with before/after events.
+     *
+     * @param string $idProperty PolicyEvent property (sectionId, groupId, productTypeId).
+     * @param int $id Scope ID.
+     * @param callable(): bool $delete Repository delete callback.
+     *
+     * @return bool Whether a policy was deleted.
+     */
+    private function deleteScopePolicy(string $idProperty, int $id, callable $delete): bool
+    {
+        $event = new PolicyEvent([
+            'sender' => $this,
+            $idProperty => $id,
         ]);
         $this->trigger(self::EVENT_BEFORE_DELETE_POLICY, $event);
 
@@ -370,12 +321,12 @@ class PolicyService extends Component implements PolicyServiceInterface
             return false;
         }
 
-        $deleted = $this->repository()->deleteByProductTypeId($productTypeId);
+        $deleted = $delete();
         if ($deleted) {
             $this->resetQueryMemo();
             $this->trigger(self::EVENT_AFTER_DELETE_POLICY, new PolicyEvent([
                 'sender' => $this,
-                'productTypeId' => $productTypeId,
+                $idProperty => $id,
             ]));
         }
 
@@ -390,62 +341,6 @@ class PolicyService extends Component implements PolicyServiceInterface
     private function resetQueryMemo(): void
     {
         Plugin::getInstance()->getElementQueryIntegrator()->resetMemo();
-    }
-
-    /**
-     * Parses posted Access Control field data into principals.
-     *
-     * @param mixed $input Raw posted field data.
-     *
-     * @return PolicyPrincipal[]|null Parsed principals, or null when input is absent.
-     */
-    public function principalsFromInput(mixed $input): ?array
-    {
-        if (!is_array($input)) {
-            return null;
-        }
-
-        $enabled = !empty($input['enabled']) && $input['enabled'] !== '0';
-
-        if (!$enabled) {
-            return [];
-        }
-
-        $principals = [];
-
-        if (!empty($input['public']) && $input['public'] !== '0') {
-            $principals[] = new PolicyPrincipal(PrincipalType::PUBLIC, PrincipalType::WILDCARD);
-        }
-
-        if (!empty($input['guest']) && $input['guest'] !== '0') {
-            $principals[] = new PolicyPrincipal(PrincipalType::GUEST, PrincipalType::WILDCARD);
-        }
-
-        $groupIds = $input['groupIds'] ?? [];
-        if (!is_array($groupIds)) {
-            $groupIds = $groupIds !== '' && $groupIds !== null ? [$groupIds] : [];
-        }
-
-        foreach ($groupIds as $groupId) {
-            $groupId = (int)$groupId;
-            if ($groupId > 0) {
-                $principals[] = new PolicyPrincipal(PrincipalType::GROUP, (string)$groupId);
-            }
-        }
-
-        $userIds = $input['userIds'] ?? [];
-        if (!is_array($userIds)) {
-            $userIds = $userIds !== '' && $userIds !== null ? [$userIds] : [];
-        }
-
-        foreach ($userIds as $userId) {
-            $userId = (int)$userId;
-            if ($userId > 0) {
-                $principals[] = new PolicyPrincipal(PrincipalType::USER, (string)$userId);
-            }
-        }
-
-        return $principals;
     }
 
     /**

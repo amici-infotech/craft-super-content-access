@@ -16,7 +16,7 @@ use yii\base\Event;
 $policies = Plugin::getInstance()->getPolicies();
 ```
 
-### Entry Policies
+### Element Policies
 
 ```php
 $policy = $policies->getForElementId(123);
@@ -26,8 +26,10 @@ $policies->saveForElement(123, [
     new PolicyPrincipal(PrincipalType::USER, '10'),
 ]);
 
-$policies->deleteForElement(123); // back to public (unless a channel default applies)
+$policies->deleteForElement(123); // back to public (unless a scope default applies)
 ```
+
+Works for entries, categories, and products — policies are keyed by element ID.
 
 ### Channel / Group / Product Type Defaults
 

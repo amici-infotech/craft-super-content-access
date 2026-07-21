@@ -24,8 +24,6 @@ use craft\events\CancelableEvent;
  * @author  Amici Infotech
  * @package SuperContentAccess
  * @since   5.0.0
- *
- * @property ElementQuery $sender Unused — prefer {@see $query}.
  */
 class ModifyElementQueryEvent extends CancelableEvent
 {

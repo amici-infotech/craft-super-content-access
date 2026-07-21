@@ -21,7 +21,7 @@ namespace amici\SuperContentAccess\fields\data;
 final class AccessControlValue
 {
     /**
-     * @param bool $enabled Whether the entry is restricted (a policy exists).
+     * @param bool $enabled Whether the element is restricted (a policy exists).
      * @param int[] $groupIds Allowed user group IDs.
      * @param int[] $userIds Allowed user IDs.
      * @param bool $submitted True only when built from a form submission.

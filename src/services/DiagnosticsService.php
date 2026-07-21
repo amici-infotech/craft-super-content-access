@@ -23,22 +23,6 @@ use craft\models\Section;
 class DiagnosticsService extends Component
 {
     /**
-     * Compact summary used by older call sites.
-     *
-     * @return array{authorizationEnabled: bool, policyCount: int, resolverTypes: string[]}
-     */
-    public function summary(): array
-    {
-        $overview = $this->overview();
-
-        return [
-            'authorizationEnabled' => $overview['authorizationEnabled'],
-            'policyCount' => $overview['totalPolicyCount'],
-            'resolverTypes' => $overview['resolverTypes'],
-        ];
-    }
-
-    /**
      * Headline numbers for the Access Overview widget.
      *
      * @return array{
@@ -46,6 +30,8 @@ class DiagnosticsService extends Component
      *     totalPolicyCount: int,
      *     elementPolicyCount: int,
      *     sectionPolicyCount: int,
+     *     groupPolicyCount: int,
+     *     productTypePolicyCount: int,
      *     principalCount: int,
      *     channelCount: int,
      *     restrictedChannelCount: int,

@@ -16,14 +16,14 @@ use yii\console\ExitCode;
 use yii\helpers\Console;
 
 /**
- * Spike console command: prove EntryQuery interception and SQL constraint injection.
+ * Diagnostic console command for Entry query authorization SQL.
  *
  * Examples:
  *   php craft super-content-access/query-probe
  *   php craft super-content-access/query-probe --seed=1 --userId=1
  *   php craft super-content-access/query-probe --mode=baseline
  *   php craft super-content-access/query-probe --mode=constrained --userId=1
- *   php craft super-content-access/query-probe --clear
+ *   php craft super-content-access/query-probe --clear=1 --force=1
  *
  * @author  Amici Infotech
  * @package SuperContentAccess
@@ -74,11 +74,18 @@ class QueryProbeController extends Controller
     public bool $seed = false;
 
     /**
-     * Whether to clear all policies before probing.
+     * Whether to wipe all policies (requires --force=1).
      *
      * @var bool
      */
     public bool $clear = false;
+
+    /**
+     * Required with --clear to confirm wiping every policy row.
+     *
+     * @var bool
+     */
+    public bool $force = false;
 
     /**
      * Whether to run the probe as a guest.
@@ -104,6 +111,7 @@ class QueryProbeController extends Controller
             'limit',
             'seed',
             'clear',
+            'force',
             'guest',
         ]);
     }
@@ -155,8 +163,18 @@ class QueryProbeController extends Controller
     private function runProbeAction($probe): int
     {
         if ($this->clear) {
-            $removed = $probe->clearAllPolicies();
-            $this->stdout("Cleared {$removed} access policy row(s).\n", Console::FG_YELLOW);
+            if (!$this->force) {
+                $this->stderr(
+                    "Refusing to wipe policies without --force=1.\n"
+                    . "This deletes every access policy (elements and General Access defaults).\n",
+                    Console::FG_RED
+                );
+
+                return ExitCode::USAGE;
+            }
+
+            $removed = $probe->wipeAllPolicies();
+            $this->stdout("Wiped {$removed} access policy row(s).\n", Console::FG_YELLOW);
             if (!$this->seed && $this->mode === 'both') {
                 return ExitCode::OK;
             }

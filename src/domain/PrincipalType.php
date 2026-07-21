@@ -9,7 +9,7 @@
 namespace amici\SuperContentAccess\domain;
 
 /**
- * Built-in principal type identifiers for v1.
+ * Built-in principal type identifiers for access policies.
  *
  * @author  Amici Infotech
  * @package SuperContentAccess

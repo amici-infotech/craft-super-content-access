@@ -13,7 +13,7 @@ No custom query params. No template helpers required for lists. Drop it in and i
 - Craft dashboard widgets for access overview and breakdown.
 - Optional `config/super-content-access.php` overrides (including env-driven enable/disable).
 - Settings stay viewable when `allowAdminChanges` is false (read-only).
-- Console query probe for verifying SQL constraints.
+- Console query probe for verifying Entry SQL constraints.
 
 ## Requirements
 

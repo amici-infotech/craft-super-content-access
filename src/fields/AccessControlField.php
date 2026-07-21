@@ -15,9 +15,8 @@ namespace amici\SuperContentAccess\fields;
 
 use amici\SuperContentAccess\assetbundles\AccessControlFieldAsset;
 use amici\SuperContentAccess\domain\AccessPolicy;
-use amici\SuperContentAccess\domain\PolicyPrincipal;
-use amici\SuperContentAccess\domain\PrincipalType;
 use amici\SuperContentAccess\fields\data\AccessControlValue;
+use amici\SuperContentAccess\helpers\PolicyEditorHelper;
 use amici\SuperContentAccess\Plugin;
 use Craft;
 use craft\base\ElementInterface;
@@ -100,8 +99,8 @@ class AccessControlField extends Field
         if (is_array($value)) {
             return new AccessControlValue(
                 enabled: !empty($value['enabled']) && $value['enabled'] !== '0',
-                groupIds: $this->intList($value['groupIds'] ?? []),
-                userIds: $this->intList($value['userIds'] ?? []),
+                groupIds: PolicyEditorHelper::intList($value['groupIds'] ?? []),
+                userIds: PolicyEditorHelper::intList($value['userIds'] ?? []),
                 submitted: true,
             );
         }
@@ -129,7 +128,7 @@ class AccessControlField extends Field
      * @param mixed $value Normalized or raw field value.
      * @param ElementInterface $element Owning element.
      *
-     * @return bool True when the entry is not restricted.
+     * @return bool True when the element is not restricted.
      */
     public function isValueEmpty(mixed $value, ElementInterface $element): bool
     {
@@ -213,7 +212,7 @@ class AccessControlField extends Field
                 return;
             }
 
-            $policies->saveForElement($elementId, $this->principalsFromValue($value));
+            $policies->saveForElement($elementId, PolicyEditorHelper::principalsFromValue($value));
         } catch (Throwable $e) {
             Craft::error(
                 sprintf('Unable to save access policy for element %d: %s', $elementId, $e->getMessage()),
@@ -245,8 +244,8 @@ class AccessControlField extends Field
             'id' => $this->getInputId(),
             'name' => $this->handle,
             'value' => $value,
-            'groupOptions' => $this->groupOptions(),
-            'selectedUsers' => $this->selectedUsers($value),
+            'groupOptions' => PolicyEditorHelper::groupOptions(),
+            'selectedUsers' => PolicyEditorHelper::selectedUsers($value),
             'userElementType' => User::class,
         ]);
     }
@@ -273,50 +272,7 @@ class AccessControlField extends Field
             return new AccessControlValue();
         }
 
-        $groupIds = [];
-        $userIds = [];
-
-        foreach ($policy->principals as $principal) {
-            switch ($principal->type) {
-                case PrincipalType::GROUP:
-                    $groupIds[] = (int)$principal->identifier;
-                    break;
-                case PrincipalType::USER:
-                    $userIds[] = (int)$principal->identifier;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return new AccessControlValue(
-            enabled: true,
-            groupIds: array_values(array_unique(array_filter($groupIds))),
-            userIds: array_values(array_unique(array_filter($userIds))),
-            submitted: false,
-        );
-    }
-
-    /**
-     * Converts a value object into domain principals.
-     *
-     * @param AccessControlValue $value Field value.
-     *
-     * @return PolicyPrincipal[] Principals for persistence.
-     */
-    private function principalsFromValue(AccessControlValue $value): array
-    {
-        $principals = [];
-
-        foreach ($value->groupIds as $groupId) {
-            $principals[] = new PolicyPrincipal(PrincipalType::GROUP, (string)$groupId);
-        }
-
-        foreach ($value->userIds as $userId) {
-            $principals[] = new PolicyPrincipal(PrincipalType::USER, (string)$userId);
-        }
-
-        return $principals;
+        return PolicyEditorHelper::valueFromPrincipals($policy->principals);
     }
 
     /**
@@ -340,69 +296,6 @@ class AccessControlField extends Field
         }
 
         return (int)$element->id;
-    }
-
-    /**
-     * Builds user group options for the input template.
-     *
-     * @return array<int, array{label: string, value: string}> Group options.
-     */
-    private function groupOptions(): array
-    {
-        $options = [];
-
-        foreach (Craft::$app->getUserGroups()->getAllGroups() as $group) {
-            $options[] = [
-                'label' => $group->name,
-                'value' => (string)$group->id,
-            ];
-        }
-
-        return $options;
-    }
-
-    /**
-     * Loads the selected user elements for the element selector.
-     *
-     * @param AccessControlValue $value Field value.
-     *
-     * @return User[] Selected users.
-     */
-    private function selectedUsers(AccessControlValue $value): array
-    {
-        if ($value->userIds === []) {
-            return [];
-        }
-
-        return User::find()
-            ->id($value->userIds)
-            ->status(null)
-            ->fixedOrder()
-            ->all();
-    }
-
-    /**
-     * Normalizes a submitted list into unique positive integers.
-     *
-     * @param mixed $input Raw submitted value.
-     *
-     * @return int[] Filtered integer list.
-     */
-    private function intList(mixed $input): array
-    {
-        if (!is_array($input)) {
-            $input = $input === '' || $input === null ? [] : [$input];
-        }
-
-        $ids = [];
-        foreach ($input as $id) {
-            $id = (int)$id;
-            if ($id > 0) {
-                $ids[] = $id;
-            }
-        }
-
-        return array_values(array_unique($ids));
     }
 
     /**

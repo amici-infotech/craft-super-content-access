@@ -42,8 +42,13 @@ interface AuthorizationServiceInterface
      *
      * @param int $elementId Element ID to evaluate.
      * @param AuthorizationContext|null $context Optional context override.
+     * @param ElementInterface|null $element Optional element when already loaded.
      *
      * @return bool True when access is allowed.
      */
-    public function canAccessElementId(int $elementId, ?AuthorizationContext $context = null): bool;
+    public function canAccessElementId(
+        int $elementId,
+        ?AuthorizationContext $context = null,
+        ?ElementInterface $element = null,
+    ): bool;
 }
