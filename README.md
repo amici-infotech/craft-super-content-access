@@ -37,7 +37,7 @@ Then:
 2. Set **Everyone** or **Members only** on elements (or set defaults under **General Access**).
 3. Keep querying as usual — filtering is automatic when authorization is enabled.
 
-For the full setup flow, see the [documentation](docs/README.md).
+For the full setup flow, see the [documentation](https://docs.amiciinfotech.com/craft-cms/super-content-access/get-started/introduction).
 
 ## Config file
 
