@@ -21,6 +21,8 @@ On the element edit screen you can:
 - Choose **Members only**, then select user groups and/or specific users.
 - See a warning when Members only is enabled with no audiences (fail-closed).
 
+![Access Control field on an entry](images/content-access-field-inside-entry.png)
+
 Saving writes to plugin tables (`super_content_access_*`), not Craft field content. The field uses `dbType: null`.
 
 Drafts: submitted values persist against the **canonical** element ID.
@@ -45,13 +47,7 @@ Sidebar scopes:
 - **Categories** — category groups
 - **Products** — Commerce product types (shown only when Commerce is installed and enabled)
 
-### Sections
-
-```text
-/admin/super-content-access/access/channels
-```
-
-Lists every Craft **channel** and **structure** section. Click a section to set its default policy. Choosing Everyone removes the section-scoped policy.
+![General Access sections list](images/general-content-access-listing.png)
 
 For structure entries, categories, and structured Commerce products, effective access is:
 
@@ -69,6 +65,8 @@ Channel and single entries, and flat (non-structure) product types, skip step 2.
 ```
 
 Lists every Craft **channel** and **structure** section. Click a section to set its default policy. Choosing Everyone removes the section-scoped policy.
+
+![Section default access editor](images/general-content-access-section-detail.png)
 
 Singles are not listed — configure access on the single entry.
 
@@ -107,9 +105,13 @@ Requires a Craft admin user. When `allowAdminChanges` is `false` in `config/gene
 
 Prefer `config/super-content-access.php` for environment-specific control (for example enable only in production via `App::env('CRAFT_ENVIRONMENT')`). Any key in that file overrides the CP value and shows a warning under the field. See [Installation — Config file](installation.md#config-file).
 
+![Plugin settings with config-file override warnings](images/general-settings.png)
+
 ## Dashboard Widgets
 
 From the Craft dashboard, add:
 
 - **Access Overview** — authorization status and policy counts, plus a link to General Access.
 - **Access Breakdown** — doughnut chart; widget settings choose policy location or audience type.
+
+![Access Overview and Breakdown dashboard widgets](images/widget-on-control-panel.png)

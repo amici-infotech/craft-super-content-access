@@ -26,6 +26,6 @@ This documentation is split by task so you can find the right guide quickly.
 - **Policy Principals** are the audiences on that policy (user groups and/or users).
 - **No policy** means public (everyone can see the element).
 - **Empty principals** on a policy means fail-closed (nobody can see it).
-- **Resolution order:** element policy → else scope default → else public.
+- **Resolution order:** element policy → nearest structure parent (when applicable) → else scope default → else public.
 - Optional `config/super-content-access.php` can drive settings from `.env` / `CRAFT_ENVIRONMENT` (`authorizationEnabled`, `adminAlwaysAccess`, `authorAlwaysAccess`).
 - Control Panel requests always bypass front-end filtering.

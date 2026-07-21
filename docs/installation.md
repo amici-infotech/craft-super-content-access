@@ -21,11 +21,23 @@ You can also install it from **Settings → Plugins** in the Control Panel.
 
 1. (Optional) Add `config/super-content-access.php` to control the master switch from env — see [Config file](#config-file).
 2. Go to **Super Content Access → Settings** and confirm **Enable authorization** (unless config already sets it).
+
+   ![Plugin settings](images/general-settings.png)
+
 3. Optionally rename **Plugin Name** for the CP nav label.
 4. Add the **Access Control** field to entry type, category group, and/or product type layouts.
 5. Edit an element: choose **Everyone** or **Members only**, then select groups/users.
+
+   ![Access Control field on an entry](images/content-access-field-inside-entry.png)
+
 6. (Optional) Set defaults under **Super Content Access → General Access** (Sections, Categories, Products).
+
+   ![General Access sections list](images/general-content-access-listing.png)
+
 7. (Optional) Add the **Access Overview** / **Access Breakdown** widgets on the Craft dashboard.
+
+   ![Dashboard widgets](images/widget-on-control-panel.png)
+
 8. On the front end, keep using `craft.entries` / `craft.categories` / `craft.products` — unauthorized elements are filtered out automatically.
 
 ## Config file
